@@ -4,26 +4,26 @@ See the repository root README.md for the full CLI specification and output
 formats.
 """
 
-import argparse
 import re
 import sys
+from argparse import ArgumentParser, Namespace, ArgumentError
 from http import HTTPMethod
 
-from logpulse.types import LineData, Stats
+from logpulse.types import Filters, LineData, Stats
 
 LOG_LINE_REGEX_STR = r'(?P<remote_addr>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(?P<timestamp>[\w/: +]+)\] "(?P<method>[A-Z]{3,7}) (?P<path>[\w/.]+) (?P<protocol>[A-Z0-9./]+)" (?P<status>\d{3}) (?P<bytes_sent>\d+) (?P<response_time_ms>[\d.]+) "(?P<user_agent>.+)"'
 
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+def build_parser() -> ArgumentParser:
+    parser = ArgumentParser(
         prog="logpulse",
-        description="Filter and aggregate access logs.",
+        description="Filter and aggregate logs.",
     )
     parser.add_argument(
-        "file", nargs="?", default="-", help="input file, or - for stdin"
-    )
-    parser.add_argument(
-        "-s", "--status-min", type=int, help="keep records with status >= MIN"
+        "-s",
+        "--status-min",
+        type=int,
+        help="keep records with status >= MIN",
     )
     parser.add_argument(
         "-e", "--status-max", type=int, help="keep records with status <= MAX"
@@ -46,15 +46,30 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--strict", action="store_true", help="exit non-zero on malformed lines"
     )
+    parser.add_argument(
+        "file", nargs="?", default="-", help="input file, or - for stdin"
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
 
+    # Initialise the stats
     stats = Stats()
+    # Try to parse the filters and raise for wrong formats
+    try:
+        args = build_parser().parse_args(argv)
+        filters = Filters(
+            status_min=args.status_min,
+            status_max=args.status_max,
+            method=HTTPMethod(args.method) if args.method else None,
+            path_prefix=args.path_prefix,
+            min_duration=args.min_duration,
+        )
+    except (ValueError, ArgumentError) as e:
+        print(e)
+        return 1
 
-    # TODO: stream input, apply filters, aggregate metrics, and emit output.
     with (
         sys.stdin if args.file == "-" else open(args.file, "r", encoding="utf8") as logs
     ):
@@ -64,12 +79,12 @@ def main(argv: list[str] | None = None) -> int:
             parsed = parse_line(line.strip())
             if not parsed:
                 if args.strict:
-                    return 1
+                    return 3
                 stats.malformed += 1
                 continue
 
             # Filter the log
-            filtered = filter_log(parsed)
+            filtered = filter_log(filters, parsed)
             if not filtered:
                 continue
             stats.matched += 1
@@ -84,15 +99,14 @@ def main(argv: list[str] | None = None) -> int:
 
     # Present the results
     print(stats)
-    return 1
+    return 0
 
 
 def parse_line(line: str) -> LineData | None:
-    print(f"{line=}")
+    """Helper to parse the log line into the relevant component pieces."""
     parsed = re.fullmatch(LOG_LINE_REGEX_STR, line)
     if not parsed:
         return None
-    print(f"{parsed.groupdict()=}")
     try:
         fields = parsed.groupdict()
         return LineData(
@@ -110,5 +124,16 @@ def parse_line(line: str) -> LineData | None:
         return None
 
 
-def filter_log(log: LineData) -> LineData | None:
-    pass
+def filter_log(filters: Filters, log: LineData) -> LineData | None:
+    """Helper to apply the given filters to the log line."""
+    if filters.status_min and log.status < filters.status_min:
+        return None
+    if filters.status_max and log.status > filters.status_max:
+        return None
+    if filters.method and log.method != filters.method:
+        return None
+    if filters.path_prefix and not log.path.startswith(filters.path_prefix):
+        return None
+    if filters.min_duration and log.response_time_ms < filters.min_duration:
+        return None
+    return log

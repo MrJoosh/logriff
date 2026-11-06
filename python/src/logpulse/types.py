@@ -26,6 +26,15 @@ class LineData:
     user_agent: str
 
 
+@dataclass
+class Filters:
+    status_min: int | None
+    status_max: int | None
+    method: HTTPMethod | None
+    path_prefix: str | None
+    min_duration: float | None
+
+
 text_output_template: str = """=== LogPulse Summary ===
 Lines Processed : {lines:,}
 Matched Records : {matched:,}
@@ -43,7 +52,7 @@ Max             : {lat_max:.2f} ms
 --- Status Codes ---
 {status_codes}
 
---- Top Routes (Top 5) ---
+--- Top Routes (Top {num_routes}) ---
 {top_routes}
 ========================
 """
