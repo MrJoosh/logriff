@@ -56,3 +56,6 @@ Max             : {lat_max:.2f} ms
 {top_routes}
 ========================
 """
+
+status_code_template: str = "{status_code} : {number:8,}  ({percentage:6.2f}%)"
+route_template: str = "{index}. {path:26} : {number:8,}"
