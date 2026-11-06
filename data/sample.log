@@ -1,0 +1,5 @@
+192.168.1.10 - - [06/Nov/2026:08:12:01 +0000] "GET /api/v1/health HTTP/1.1" 200 42 1.2 "Go-http-client/1.1"
+10.0.0.5 - - [06/Nov/2026:08:12:02 +0000] "POST /api/v1/auth/login HTTP/1.1" 401 128 85.4 "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+192.168.1.15 - - [06/Nov/2026:08:12:03 +0000] "GET /api/v1/items/4912 HTTP/2.0" 200 8920 14.8 "curl/8.1.2"
+172.16.0.22 - - [06/Nov/2026:08:12:04 +0000] "GET /assets/main.css HTTP/1.1" 304 0 0.8 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+10.0.0.12 - - [06/Nov/2026:08:12:05 +0000] "DELETE /api/v1/sessions/current HTTP/1.1" 500 240 210.6 "PostmanRuntime/7.32.3"

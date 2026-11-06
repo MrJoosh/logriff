@@ -218,3 +218,40 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ---------------------------------------------------------------------------
+# Project-specific / multi-language
+# ---------------------------------------------------------------------------
+
+# macOS
+.DS_Store
+._*
+
+# Generated test data and differential-test output
+*.log
+!data/sample.log
+*_out.json
+
+# Go
+/go/logpulse
+/go/logpulse.exe
+/go/bin/
+*.test
+
+# Rust (target/ is covered above)
+**/*.rs.bk
+
+# C++ / CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+cmake-build-*/
+compile_commands.json
+*.o
+*.obj
+*.a
+*.out
+
+# Lua
+luac.out
+*.luac

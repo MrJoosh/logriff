@@ -1,0 +1,12 @@
+[package]
+name = "logpulse"
+version = "0.1.0"
+edition = "2021"
+description = "Multi-language CLI log filter and aggregator"
+license = "MIT"
+
+[[bin]]
+name = "logpulse"
+path = "src/main.rs"
+
+[dependencies]
