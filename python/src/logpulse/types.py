@@ -6,7 +6,7 @@ from http import HTTPMethod
 class Stats:
     lines: int = 0
     matched: int = 0
-    malformed: int = 0
+    error: int = 0
     bytes_volume: int = 0
     response_times: list[float] = field(default_factory=list)
     status_code_distribution: dict[int, int] = field(default_factory=dict)
