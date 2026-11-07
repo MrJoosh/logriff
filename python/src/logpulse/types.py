@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from http import HTTPMethod
+from typing import TypedDict
 
 
 @dataclass
@@ -35,27 +36,31 @@ class Filters:
     min_duration: float | None
 
 
-text_output_template: str = """=== LogPulse Summary ===
-Lines Processed : {lines:,}
-Matched Records : {matched:,}
-Skipped (Errors): {malformed}
+class OutputSummary(TypedDict):
+    total_lines: int
+    matched_lines: int
+    error_lines: int
 
---- Traffic & Bandwidth ---
-Total Volume    : {bytes_gb:.2f} GB ({bytes_volume:,} bytes)
 
---- Latency (ms) ---
-Min             : {lat_min:.2f} ms
-Mean            : {lat_avg:.2f} ms
-p95             : {lat_95th:.2f} ms
-Max             : {lat_max:.2f} ms
+class OutputTraffic(TypedDict):
+    total_bytes: int
 
---- Status Codes ---
-{status_codes}
 
---- Top Routes (Top {num_routes}) ---
-{top_routes}
-========================
-"""
+class OutputLatency(TypedDict):
+    min: float
+    mean: float
+    p95: float
+    max: float
 
-status_code_template: str = "{status_code} : {number:8,}  ({percentage:6.2f}%)"
-route_template: str = "{index}. {path:26} : {number:8,}"
+
+class OutputTopRoute(TypedDict):
+    path: str
+    count: int
+
+
+class OutputDict(TypedDict):
+    summary: OutputSummary
+    traffic: OutputTraffic
+    latency_ms: OutputLatency
+    status_codes: dict[str, int]
+    top_routes: list[OutputTopRoute]

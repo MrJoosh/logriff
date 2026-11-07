@@ -96,5 +96,5 @@ def main(argv: list[str] | None = None) -> int:
             )
 
     # Present the results
-    print(stats)
+    print(generate_output(args.format, args.top_routes, stats))
     return 0

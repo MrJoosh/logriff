@@ -44,3 +44,73 @@ def filter_log(filters: Filters, log: LineData) -> LineData | None:
         return None
     return log
 
+
+def generate_output(format: str, num_top_routes: int, stats: Stats) -> str:
+    # Build the dict format, and then use that to build the text output if required
+    output_dict: OutputDict = {
+        "summary": {
+            "total_lines": stats.lines,
+            "matched_lines": stats.matched,
+            "error_lines": stats.error,
+        },
+        "traffic": {
+            "total_bytes": stats.bytes_volume,
+        },
+        "latency_ms": {
+            "min": min(stats.response_times),
+            "mean": fmean(stats.response_times),
+            "p95": quantiles(sorted(stats.response_times), n=100, method="inclusive")[
+                94
+            ],
+            "max": max(stats.response_times),
+        },
+        "status_codes": {
+            str(code): count
+            for code, count in sorted(stats.status_code_distribution.items())
+        },
+        "top_routes": [
+            OutputTopRoute(path=path, count=count)
+            for path, count in {
+                k: v
+                for k, v in sorted(
+                    stats.route_distribution.items(),
+                    key=lambda x: x[1],
+                    reverse=True,
+                )
+            }.items()
+        ][:num_top_routes],
+    }
+    if format == "text":
+        # Build status code output
+        status_code_lines: list[str] = [
+            f"{status_code} : {count:8,}  ({((count / sum(output_dict['status_codes'].values())) * 100):6.2f}%)"
+            for status_code, count in output_dict["status_codes"].items()
+        ]
+        top_route_lines: list[str] = [
+            f"{index}. {route['path']:26} : {route['count']:8,}"
+            for index, route in enumerate(output_dict["top_routes"])
+        ]
+
+        return f"""=== LogPulse Summary ===
+Lines Processed : {output_dict["summary"]["total_lines"]:,}
+Matched Records : {output_dict["summary"]["matched_lines"]:,}
+Skipped (Errors): {output_dict["summary"]["error_lines"]:,}
+
+--- Traffic & Bandwidth ---
+Total Volume    : {(output_dict["traffic"]["total_bytes"] / 1000000000):.2f} GB ({output_dict["traffic"]["total_bytes"]:,} bytes)
+
+--- Latency (ms) ---
+Min             : {output_dict["latency_ms"]["min"]:.2f} ms
+Mean            : {output_dict["latency_ms"]["mean"]:.2f} ms
+p95             : {output_dict["latency_ms"]["p95"]:.2f} ms
+Max             : {output_dict["latency_ms"]["max"]:.2f} ms
+
+--- Status Codes ---
+{"\n".join(status_code_lines)}
+
+--- Top Routes (Top {num_top_routes}) ---
+{"\n".join(top_route_lines)}
+========================
+        """
+
+    return json.dumps(output_dict)
