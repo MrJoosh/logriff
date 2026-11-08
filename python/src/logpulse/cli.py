@@ -97,10 +97,13 @@ def main(argv: list[str] | None = None) -> int:
             min_duration=args.min_duration,
         )
     except SystemExit as e:
+        if e.code == 0:
+            return ExitCode.SUCCESS
         if e.code == 2:
             return ExitCode.VALIDATION_ERROR
-        else:
-            raise
+        printerr(f"Unexpected SytemExit: {e.code}.")
+        raise
+
     try:
         with (
             sys.stdin
