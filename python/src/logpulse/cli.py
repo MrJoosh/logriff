@@ -149,6 +149,10 @@ def main(argv: list[str] | None = None) -> int:
             return ExitCode.IO_ERROR
     except PermissionError as e:
         printerr(str(e))
+        return ExitCode.IO_ERROR
+    except IsADirectoryError:
+        printerr(f"File '{args.file}' is a directory.")
+        return ExitCode.IO_ERROR
 
     # Present the results
     if stats.lines == 0:
