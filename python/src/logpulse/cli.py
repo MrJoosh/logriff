@@ -141,7 +141,12 @@ def main(argv: list[str] | None = None) -> int:
         if msg == "I/O operation on closed file.":
             print(f"Error: {msg}", file=sys.stderr)
             return ExitCode.IO_ERROR
-        raise
+        elif isinstance(e, UnicodeDecodeError):
+            printerr(f"File '{args.file}' is not in UTF-8 format.")
+            return ExitCode.IO_ERROR
+        else:
+            printerr(f"Unexpected ValueError: {e}.")
+            return ExitCode.IO_ERROR
     except PermissionError as e:
         printerr(str(e))
 
