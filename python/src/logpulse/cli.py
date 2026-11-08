@@ -158,5 +158,9 @@ def main(argv: list[str] | None = None) -> int:
     if stats.lines == 0:
         printerr("No data to process.")
         return ExitCode.IO_ERROR
-    print(generate_output(args.format, args.top_routes, stats))
+    try:
+        print(generate_output(args.format, args.top_routes, stats))
+    except BrokenPipeError as e:
+        printerr(str(e))
+        return ExitCode.IO_ERROR
     return ExitCode.SUCCESS
