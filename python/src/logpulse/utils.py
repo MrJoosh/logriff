@@ -1,6 +1,7 @@
 import json
 import re
 import sys
+from argparse import Namespace
 from http import HTTPMethod
 from statistics import fmean, quantiles
 
@@ -11,6 +12,16 @@ LOG_LINE_REGEX_STR = r'(?P<remote_addr>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \
 
 def printerr(msg: str) -> None:
     print(f"Error: {msg}", file=sys.stderr)
+
+
+def validate_args(args: Namespace) -> bool:
+    if args.status_min and args.status_max and args.status_min > args.status_max:
+        printerr("Status min filter can't be greater than status max filter.")
+        return False
+    if args.top_routes and args.top_routes < 0:
+        printerr("Can't specify a negative numer of routes.")
+        return False
+    return True
 
 
 def parse_line(line: str) -> LineData | None:

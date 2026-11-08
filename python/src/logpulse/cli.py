@@ -9,7 +9,13 @@ from argparse import ArgumentParser
 from http import HTTPMethod
 
 from logpulse.types import ExitCode, Filters, Stats
-from logpulse.utils import filter_log, generate_output, parse_line, printerr
+from logpulse.utils import (
+    filter_log,
+    generate_output,
+    parse_line,
+    printerr,
+    validate_args,
+)
 
 
 def build_parser() -> ArgumentParser:
@@ -81,6 +87,8 @@ def main(argv: list[str] | None = None) -> int:
     # Try to parse the filters and raise for wrong formats
     try:
         args = build_parser().parse_args(argv)
+        if not validate_args(args):
+            return ExitCode.VALIDATION_ERROR
         filters = Filters(
             status_min=args.status_min,
             status_max=args.status_max,
