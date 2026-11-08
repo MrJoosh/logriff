@@ -1,11 +1,16 @@
 import json
 import re
+import sys
 from http import HTTPMethod
 from statistics import fmean, quantiles
 
 from logpulse.types import Filters, LineData, OutputDict, OutputTopRoute, Stats
 
 LOG_LINE_REGEX_STR = r'(?P<remote_addr>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(?P<timestamp>[\w/: +]+)\] "(?P<method>[A-Z]{3,7}) (?P<path>[\w/.]+) (?P<protocol>[A-Z0-9./]+)" (?P<status>\d{3}) (?P<bytes_sent>\d+) (?P<response_time_ms>[\d.]+) "(?P<user_agent>.+)"'
+
+
+def printerr(msg: str) -> None:
+    print(f"Error: {msg}", file=sys.stderr)
 
 
 def parse_line(line: str) -> LineData | None:
