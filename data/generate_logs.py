@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Synthetic access-log generator for LogPulse test data.
 
+Generated logs include a mix of IPv4 and IPv6 clients, and paths both with and
+without query strings, as permitted by the LogPulse input specification.
+
 Usage:
     python3 data/generate_logs.py --lines 1000000 --seed 42 --out data/test_1m.log
     python3 data/generate_logs.py --lines 100 --seed 42 --malformed 5 --out data/malformed.log
@@ -22,6 +25,8 @@ PATHS = [
     "/assets/main.css",
     "/assets/app.js",
 ]
+IPV6_PREFIXES = ["2001:db8", "fe80"]
+QUERY_KEYS = ["page", "ref", "sort"]
 STATUSES = [200, 200, 200, 200, 200, 201, 204, 301, 304, 400, 401, 403, 404, 500, 503]
 USER_AGENTS = [
     "Go-http-client/1.1",
@@ -69,26 +74,34 @@ def generate(lines, seed, malformed=0):
     start = datetime(2026, 11, 6, 8, 0, 0, tzinfo=UTC)
 
     for i in range(lines):
-        if i in malformed_indices:
-            yield malformed_rng.choice(MALFORMED_LINES)
-            continue
-
-        remote_addr = (
-            f"10.{rng.randrange(256)}.{rng.randrange(256)}.{rng.randrange(1, 255)}"
-        )
+        if i % 7 == 3:
+            remote_addr = (
+                f"{rng.choice(IPV6_PREFIXES)}::"
+                f"{rng.randrange(1, 0xFFFF):x}:{rng.randrange(1, 0xFFFF):x}"
+            )
+        else:
+            remote_addr = (
+                f"10.{rng.randrange(256)}.{rng.randrange(256)}.{rng.randrange(1, 255)}"
+            )
         timestamp = (start + timedelta(seconds=i)).strftime("%d/%b/%Y:%H:%M:%S +0000")
         method = rng.choice(METHODS)
         path = rng.choice(PATHS)
+        if i % 5 == 2:
+            path = f"{path}?{rng.choice(QUERY_KEYS)}={rng.randrange(1, 1000)}"
         protocol = rng.choice(["HTTP/1.1", "HTTP/2.0"])
         status = rng.choice(STATUSES)
         bytes_sent = 0 if status == 304 else rng.randrange(0, 20_000)
         response_time_ms = round(rng.expovariate(1 / 25.0) + 0.1, 1)
         user_agent = rng.choice(USER_AGENTS)
 
-        yield (
+        line = (
             f'{remote_addr} - - [{timestamp}] "{method} {path} {protocol}" '
             f'{status} {bytes_sent} {response_time_ms} "{user_agent}"'
         )
+        if i in malformed_indices:
+            yield malformed_rng.choice(MALFORMED_LINES)
+        else:
+            yield line
 
 
 def main(argv=None):
