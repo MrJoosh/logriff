@@ -1,6 +1,14 @@
 from dataclasses import dataclass, field
+from enum import IntEnum
 from http import HTTPMethod
 from typing import TypedDict
+
+
+class ExitCode(IntEnum):
+    SUCCESS = 0
+    VALIDATION_ERROR = 1
+    IO_ERROR = 2
+    STRICT_ERROR = 3
 
 
 @dataclass
