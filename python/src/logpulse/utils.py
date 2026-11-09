@@ -23,7 +23,7 @@ IP_REGEX_STR: str = (
 )
 TIMESTAMP_REGEX: str = r"(?P<timestamp>[\w/: +]+)"
 METHOD_REGEX: str = r"(?P<method>[A-Z]{3,7})"
-PATH_REGEX: str = r"(?P<path>[\w/.?]+)"
+PATH_REGEX: str = r"(?P<path>[\w/.?=]+)"
 PROTOCOL_REGEX: str = r"(?P<protocol>[A-Z0-9./]+)"
 STATUS_REGEX: str = r"(?P<status>\d{3})"
 BYTES_REGEX: str = r"(?P<bytes_sent>\d+)"
