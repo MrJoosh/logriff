@@ -35,16 +35,16 @@ func usage() {
 }
 
 func validateArgs(a args) (args, error) {
-	if a.statusMin < 100 || a.statusMin > 599 {
+	if a.statusMin != 0 && (a.statusMin < 100 || a.statusMin > 599) {
 		return a, fmt.Errorf("Invalid HTTP Status in status-min: %v", a.statusMin)
 	}
-	if a.statusMax < 100 || a.statusMax > 599 {
+	if a.statusMax != 0 && (a.statusMax < 100 || a.statusMax > 599) {
 		return a, fmt.Errorf("Invalid HTTP Status in status-max: %v", a.statusMax)
 	}
-	if a.statusMin > a.statusMax {
+	if a.statusMin != 0 && a.statusMax != 0 && a.statusMin > a.statusMax {
 		return a, fmt.Errorf("Filter for status-max cannot be greater than status-min: %v > %v", a.statusMin, a.statusMax)
 	}
-	if !httpMethods[a.method] {
+	if a.method != "" && !httpMethods[a.method] {
 		return a, fmt.Errorf("Invalid HTTP Method in method filter: %s", a.method)
 	}
 	if a.minDuration < 0 {
@@ -53,7 +53,7 @@ func validateArgs(a args) (args, error) {
 	if a.topRoutes < 0 {
 		return a, fmt.Errorf("Number of top-routes must be a positive non-zero integer: %v", a.topRoutes)
 	}
-	if a.format != "text" && a.format != "json" {
+	if a.format != "" && a.format != "text" && a.format != "json" {
 		return a, fmt.Errorf("Invalid output format: %s", a.format)
 	}
 	return a, nil
@@ -140,6 +140,8 @@ func parseArgs(argv []string) (args, error) {
 
 	if len(positional) > 1 {
 		return args{}, fmt.Errorf("unexpected arguments: %v", positional[1:])
+	} else if len(positional) == 0 {
+		out.file = "-"
 	} else {
 		out.file = positional[0]
 	}
