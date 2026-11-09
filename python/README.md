@@ -1,6 +1,6 @@
-# LogPulse (Python)
+# LogRiff (Python)
 
-Python baseline implementation of the LogPulse CLI.
+Python baseline implementation of the LogRiff CLI.
 
 ## Setup
 
@@ -11,14 +11,14 @@ uv sync
 ## Usage
 
 ```bash
-uv run logpulse --help
-uv run logpulse --format json ../../data/sample.log
+uv run logriff --help
+uv run logriff --format json ../data/sample.log
 ```
 
 Alternatively, run the package directly:
 
 ```bash
-uv run python -m logpulse --help
+uv run python -m logriff --help
 ```
 
 See the repository root `README.md` for the full CLI specification.

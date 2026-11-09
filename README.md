@@ -1,4 +1,4 @@
-# LogPulse: Multi-Language CLI Log Filter & Aggregator
+# LogRiff: Multi-Language CLI Log Filter & Aggregator
 
 A standardized, multi-language coding exercise designed to compare idioms, memory management, I/O throughput, and concurrency across **Python**, **Go**, **Rust**, **C++**, and **Lua**.
 
@@ -6,7 +6,7 @@ A standardized, multi-language coding exercise designed to compare idioms, memor
 
 ## 1. Project Overview
 
-`logpulse` is a high-performance command-line utility that ingests structured access logs from a file or standard input (`stdin`), filters records according to command-line flags, computes aggregate traffic metrics, and produces formatted text or JSON summaries.
+`logriff` is a high-performance command-line utility that ingests structured access logs from a file or standard input (`stdin`), filters records according to command-line flags, computes aggregate traffic metrics, and produces formatted text or JSON summaries.
 
 ### Primary Learning Objectives
 
@@ -22,7 +22,7 @@ A standardized, multi-language coding exercise designed to compare idioms, memor
 
 ## 2. Input Data Format
 
-`logpulse` operates on a standardized, space-delimited Common/Combined Log Format variant:
+`logriff` operates on a standardized, space-delimited Common/Combined Log Format variant:
 
 ```text
 <remote_addr> - - [<timestamp>] "<method> <path> <protocol>" <status> <bytes_sent> <response_time_ms> "<user_agent>"
@@ -59,7 +59,7 @@ A standardized, multi-language coding exercise designed to compare idioms, memor
 ### Usage
 
 ```bash
-logpulse [OPTIONS] [FILE]
+logriff [OPTIONS] [FILE]
 ```
 
 If `[FILE]` is omitted or passed as `-`, read input from `stdin`.
@@ -82,7 +82,7 @@ If `[FILE]` is omitted or passed as `-`, read input from `stdin`.
 
 ## 4. Aggregations & Metrics Requirements
 
-After processing input lines and applying all active filters, `logpulse` must calculate:
+After processing input lines and applying all active filters, `logriff` must calculate:
 
 1. **Record Counts:**
    * Total lines ingested ($N_{\text{total}}$).
@@ -106,7 +106,7 @@ After processing input lines and applying all active filters, `logpulse` must ca
 ### 5.1 Text Output (`--format text`)
 
 ```text
-=== LogPulse Summary ===
+=== LogRiff Summary ===
 Lines Processed : 1,000,000
 Matched Records : 842,100
 Skipped (Errors): 14
@@ -205,7 +205,7 @@ Max             : 1412.30 ms
 │   ├── pyproject.toml     # uv project configuration
 │   ├── .python-version
 │   ├── uv.lock
-│   └── src/logpulse/
+│   └── src/logriff/
 │       ├── __init__.py
 │       ├── __main__.py
 │       └── cli.py
@@ -219,7 +219,7 @@ Max             : 1412.30 ms
 │   ├── CMakeLists.txt
 │   └── src/main.cpp
 ├── lua/
-│   └── logpulse.lua
+│   └── logriff.lua
 └── tests/
     └── integration_test.sh # Cross-language output verification
 ```
@@ -238,8 +238,8 @@ Max             : 1412.30 ms
    Pipe identical input through each language's binary with `--format json` and compare outputs using `jq`:
    ```bash
    # Go vs Rust
-   ./go/logpulse --format json data/test_1m.log > go_out.json
-   ./rust/target/release/logpulse --format json data/test_1m.log > rust_out.json
+   ./go/logriff --format json data/test_1m.log > go_out.json
+   ./rust/target/release/logriff --format json data/test_1m.log > rust_out.json
    diff <(jq -S . go_out.json) <(jq -S . rust_out.json)
    ```
 

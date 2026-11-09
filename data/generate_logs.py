@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Synthetic access-log generator for LogPulse test data.
+"""Synthetic access-log generator for LogRiff test data.
 
 Generated logs include a mix of IPv4 and IPv6 clients, and paths both with and
-without query strings, as permitted by the LogPulse input specification.
+without query strings, as permitted by the LogRiff input specification.
 
 Usage:
     python3 data/generate_logs.py --lines 1000000 --seed 42 --out data/test_1m.log
@@ -49,7 +49,7 @@ MALFORMED_LINES = [
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Generate synthetic LogPulse access logs."
+        description="Generate synthetic LogRiff access logs."
     )
     parser.add_argument(
         "--lines", type=int, default=1000, help="number of lines to generate"

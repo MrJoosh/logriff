@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from logpulse import main
-from logpulse.types import ExitCode
+from logriff import main
+from logriff.types import ExitCode
 
 
 def _json_output(capsys) -> dict:
@@ -31,7 +31,7 @@ def test_strict_mode_with_valid_input(sample_log, capsys) -> None:
     captured = capsys.readouterr()
 
     assert rc == ExitCode.SUCCESS
-    assert "=== LogPulse Summary ===" in captured.out
+    assert "=== LogRiff Summary ===" in captured.out
 
 
 def test_strict_mode_with_missing_file(tmp_path) -> None:
@@ -91,7 +91,7 @@ def test_text_format(sample_log, capsys) -> None:
     captured = capsys.readouterr()
 
     assert rc == ExitCode.SUCCESS
-    assert "=== LogPulse Summary ===" in captured.out
+    assert "=== LogRiff Summary ===" in captured.out
     assert "Lines Processed : 5" in captured.out
     assert "Matched Records : 5" in captured.out
     assert "Skipped (Errors): 0" in captured.out

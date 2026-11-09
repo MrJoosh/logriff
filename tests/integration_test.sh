@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cross-language output verification for LogPulse.
+# Cross-language output verification for LogRiff.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

@@ -1,5 +1,5 @@
-from logpulse import main
-from logpulse.types import ExitCode
+from logriff import main
+from logriff.types import ExitCode
 
 
 def test_success_exit_code(sample_log, capsys) -> None:
@@ -8,5 +8,5 @@ def test_success_exit_code(sample_log, capsys) -> None:
     captured = capsys.readouterr()
 
     assert rc == ExitCode.SUCCESS
-    assert "=== LogPulse Summary ===" in captured.out
+    assert "=== LogRiff Summary ===" in captured.out
     assert captured.err == ""

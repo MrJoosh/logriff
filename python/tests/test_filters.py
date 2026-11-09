@@ -2,8 +2,8 @@ from http import HTTPMethod
 
 import pytest
 
-from logpulse.types import Filters, LineData
-from logpulse.utils import filter_log
+from logriff.types import Filters, LineData
+from logriff.utils import filter_log
 
 
 def make_line(**overrides) -> LineData:

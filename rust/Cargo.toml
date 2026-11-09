@@ -1,12 +1,12 @@
 [package]
-name = "logpulse"
+name = "logriff"
 version = "0.1.0"
 edition = "2021"
 description = "Multi-language CLI log filter and aggregator"
 license = "MIT"
 
 [[bin]]
-name = "logpulse"
+name = "logriff"
 path = "src/main.rs"
 
 [dependencies]

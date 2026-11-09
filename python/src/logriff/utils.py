@@ -5,7 +5,7 @@ from argparse import Namespace
 from http import HTTPMethod, HTTPStatus
 from statistics import fmean, quantiles
 
-from logpulse.types import Filters, LineData, OutputDict, OutputTopRoute, Stats
+from logriff.types import Filters, LineData, OutputDict, OutputTopRoute, Stats
 
 # TODO: Split below into separate regex strings per section then join them up
 IP_REGEX_STR: str = (
@@ -136,7 +136,7 @@ def generate_output(format: str, num_top_routes: int, stats: Stats) -> str:
             for index, route in enumerate(output_dict["top_routes"])
         ]
 
-        return f"""=== LogPulse Summary ===
+        return f"""=== LogRiff Summary ===
 Lines Processed : {output_dict["summary"]["total_lines"]:,}
 Matched Records : {output_dict["summary"]["matched_lines"]:,}
 Skipped (Errors): {output_dict["summary"]["error_lines"]:,}

@@ -1,4 +1,4 @@
-"""Command-line interface for LogPulse.
+"""Command-line interface for LogRiff.
 
 See the repository root README.md for the full CLI specification and output
 formats.
@@ -8,8 +8,8 @@ import sys
 from argparse import ArgumentParser
 from http import HTTPMethod
 
-from logpulse.types import ExitCode, Filters, Stats
-from logpulse.utils import (
+from logriff.types import ExitCode, Filters, Stats
+from logriff.utils import (
     filter_log,
     generate_output,
     parse_line,
@@ -20,7 +20,7 @@ from logpulse.utils import (
 
 def build_parser() -> ArgumentParser:
     parser = ArgumentParser(
-        prog="logpulse",
+        prog="logriff",
         description="Filter and aggregate logs.",
     )
     parser.add_argument(

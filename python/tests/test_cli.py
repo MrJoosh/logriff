@@ -1,8 +1,8 @@
 import pytest
 
-from logpulse import main
-from logpulse.cli import build_parser
-from logpulse.types import ExitCode
+from logriff import main
+from logriff.cli import build_parser
+from logriff.types import ExitCode
 
 
 @pytest.mark.parametrize(
@@ -48,7 +48,7 @@ def test_help_returns_success(capsys) -> None:
     captured = capsys.readouterr()
 
     assert rc == ExitCode.SUCCESS
-    assert "usage: logpulse" in captured.out
+    assert "usage: logriff" in captured.out
     assert "--status-min" in captured.out
 
 
@@ -58,7 +58,7 @@ def test_short_help_returns_success(capsys) -> None:
     captured = capsys.readouterr()
 
     assert rc == ExitCode.SUCCESS
-    assert "usage: logpulse" in captured.out
+    assert "usage: logriff" in captured.out
 
 
 def test_status_min_greater_than_max_is_validation_error(sample_log) -> None:

@@ -234,8 +234,8 @@ __marimo__/
 *_out.json
 
 # Go
-/go/logpulse
-/go/logpulse.exe
+/go/logriff
+/go/logriff.exe
 /go/bin/
 *.test
 

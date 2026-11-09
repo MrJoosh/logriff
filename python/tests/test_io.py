@@ -3,8 +3,8 @@ import io
 import sys
 from unittest.mock import MagicMock
 
-from logpulse import main
-from logpulse.types import ExitCode
+from logriff import main
+from logriff.types import ExitCode
 
 
 def test_file_not_found(tmp_path, capsys) -> None:

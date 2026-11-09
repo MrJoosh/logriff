@@ -1,3 +1,3 @@
-module logpulse
+module logriff
 
 go 1.23

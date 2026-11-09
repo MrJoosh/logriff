@@ -2,8 +2,8 @@ from http import HTTPMethod
 
 import pytest
 
-from logpulse.types import LineData
-from logpulse.utils import parse_line
+from logriff.types import LineData
+from logriff.utils import parse_line
 
 
 def test_parse_line_extracts_all_fields(make_log_line) -> None:
