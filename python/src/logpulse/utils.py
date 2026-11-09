@@ -62,7 +62,7 @@ def parse_line(line: str) -> LineData | None:
             remote_addr=fields["remote_addr"],
             timestamp=fields["timestamp"],
             method=HTTPMethod(fields["method"]),
-            path=fields["path"],
+            path=fields["path"].split("?")[0],
             protocol=fields["protocol"],
             status=int(fields["status"]),
             bytes_sent=int(fields["bytes_sent"]),
