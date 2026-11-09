@@ -8,6 +8,13 @@ import (
 func main() {
 	// TODO: parse flags, stream input, apply filters, aggregate metrics, and emit output.
 	// See README.md for the full CLI specification and output formats.
-	fmt.Fprintln(os.Stderr, "logriff: Go implementation is not yet written")
-	os.Exit(1)
+	cliArgs := os.Args[1:]
+	input, err := parseArgs(cliArgs)
+	if err != nil {
+		fmt.Println(err)
+		usage()
+		os.Exit(1)
+	}
+	fmt.Println(input)
+	os.Exit(0)
 }
