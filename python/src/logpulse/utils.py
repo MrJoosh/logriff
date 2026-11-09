@@ -2,7 +2,7 @@ import json
 import re
 import sys
 from argparse import Namespace
-from http import HTTPMethod
+from http import HTTPMethod, HTTPStatus
 from statistics import fmean, quantiles
 
 from logpulse.types import Filters, LineData, OutputDict, OutputTopRoute, Stats
@@ -55,6 +55,9 @@ def parse_line(line: str) -> LineData | None:
         return None
     try:
         fields = parsed.groupdict()
+        # Validate HTTP status code
+        HTTPStatus(int(fields["status"]))
+        # Validate rest of field types using dataclass and return
         return LineData(
             remote_addr=fields["remote_addr"],
             timestamp=fields["timestamp"],
