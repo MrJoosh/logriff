@@ -5,16 +5,21 @@ import (
 	"os"
 )
 
-func main() {
+func run() ExitCode {
 	// TODO: parse flags, stream input, apply filters, aggregate metrics, and emit output.
 	// See README.md for the full CLI specification and output formats.
-	cliArgs := os.Args[1:]
-	input, err := parseArgs(cliArgs)
+	argv := os.Args[1:]
+	args, err := parseArgs(argv)
 	if err != nil {
 		fmt.Println(err)
 		usage()
-		os.Exit(1)
+		return ExitValidationError
 	}
-	fmt.Println(input)
-	os.Exit(0)
+	fmt.Println(args)
+	return ExitSuccess
+}
+
+func main() {
+	rc := run()
+	os.Exit(int(rc))
 }

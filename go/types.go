@@ -1,5 +1,14 @@
 package main
 
+type ExitCode int
+
+const (
+	ExitSuccess ExitCode = iota
+	ExitValidationError
+	ExitIOError
+	ExitStrictError
+)
+
 var httpMethods = map[string]bool{
 	"CONNECT": true,
 	"DELETE":  true,
