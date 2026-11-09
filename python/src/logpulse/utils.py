@@ -132,7 +132,7 @@ def generate_output(format: str, num_top_routes: int, stats: Stats) -> str:
             for status_code, count in output_dict["status_codes"].items()
         ]
         top_route_lines: list[str] = [
-            f"{index}. {route['path']:26} : {route['count']:8,}"
+            f"{index + 1}. {route['path']:26} : {route['count']:8,}"
             for index, route in enumerate(output_dict["top_routes"])
         ]
 
