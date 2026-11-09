@@ -230,6 +230,7 @@ __marimo__/
 # Generated test data and differential-test output
 *.log
 !data/sample.log
+!data/malformed_sample.log
 *_out.json
 
 # Go
