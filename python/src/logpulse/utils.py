@@ -100,12 +100,14 @@ def generate_output(format: str, num_top_routes: int, stats: Stats) -> str:
             "total_bytes": stats.bytes_volume,
         },
         "latency_ms": {
-            "min": min(stats.response_times),
-            "mean": fmean(stats.response_times),
+            "min": min(stats.response_times) if stats.response_times else 0,
+            "mean": fmean(stats.response_times) if stats.response_times else 0,
             "p95": quantiles(sorted(stats.response_times), n=100, method="inclusive")[
                 94
-            ],
-            "max": max(stats.response_times),
+            ]
+            if stats.response_times
+            else 0,
+            "max": max(stats.response_times) if stats.response_times else 0,
         },
         "status_codes": {
             str(code): count
