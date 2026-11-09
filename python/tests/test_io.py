@@ -34,9 +34,7 @@ def test_permission_denied(monkeypatch, tmp_path, capsys) -> None:
     assert "Permission denied" in captured.err
 
 
-def test_permission_denied_mid_stream(
-    monkeypatch, capsys, make_log_line
-) -> None:
+def test_permission_denied_mid_stream(monkeypatch, capsys, make_log_line) -> None:
     class PermissionDeniedAfterOneLine(io.StringIO):
         def __iter__(self):
             yield make_log_line() + "\n"
@@ -147,9 +145,7 @@ def test_invalid_utf8_returns_io_error(tmp_path, capsys) -> None:
     assert captured.out == ""
 
 
-def test_unexpected_value_error_returns_io_error(
-    monkeypatch, tmp_path, capsys
-) -> None:
+def test_unexpected_value_error_returns_io_error(monkeypatch, tmp_path, capsys) -> None:
     path = tmp_path / "input.log"
     mock_open = MagicMock(side_effect=ValueError("Test error."))
     monkeypatch.setattr(builtins, "open", mock_open)

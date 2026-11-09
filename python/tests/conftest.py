@@ -45,7 +45,7 @@ def make_log_line():
         user_agent: str = "test-agent",
     ) -> str:
         return (
-            f'{addr} - - [06/Nov/2026:08:12:01 +0000] '
+            f"{addr} - - [06/Nov/2026:08:12:01 +0000] "
             f'"{method} {path} {protocol}" '
             f'{status} {bytes_sent} {duration} "{user_agent}"'
         )
