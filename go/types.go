@@ -32,3 +32,15 @@ type args struct {
 	strict      bool
 	file        string
 }
+
+type lineData struct {
+	remoteAddr     string
+	timestamp      string
+	method         string
+	path           string
+	protocol       string
+	status         int
+	bytesSent      int
+	responseTimeMs float64
+	userAgent      string
+}
