@@ -121,8 +121,7 @@ def main(argv=None):
             out = stack.enter_context(open(args.out, "w", encoding="utf-8"))
 
         out.writelines(
-            f"{line}\n"
-            for line in generate(args.lines, args.seed, args.malformed)
+            f"{line}\n" for line in generate(args.lines, args.seed, args.malformed)
         )
 
     return 0
