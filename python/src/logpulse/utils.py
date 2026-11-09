@@ -7,7 +7,31 @@ from statistics import fmean, quantiles
 
 from logpulse.types import Filters, LineData, OutputDict, OutputTopRoute, Stats
 
-LOG_LINE_REGEX_STR = r'(?P<remote_addr>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(?P<timestamp>[\w/: +]+)\] "(?P<method>[A-Z]{3,7}) (?P<path>[\w/.]+) (?P<protocol>[A-Z0-9./]+)" (?P<status>\d{3}) (?P<bytes_sent>\d+) (?P<response_time_ms>[\d.]+) "(?P<user_agent>.+)"'
+# TODO: Split below into separate regex strings per section then join them up
+IP_REGEX_STR: str = (
+    r"(?P<remote_addr>(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}"
+    r"(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])|"
+    r"(?:(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|"
+    r"(?:[0-9a-fA-F]{1,4}:){1,7}:|"
+    r"(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|"
+    r"(?:[0-9a-fA-F]{1,4}:){1,5}(?::[0-9a-fA-F]{1,4}){1,2}|"
+    r"(?:[0-9a-fA-F]{1,4}:){1,4}(?::[0-9a-fA-F]{1,4}){1,3}|"
+    r"(?:[0-9a-fA-F]{1,4}:){1,3}(?::[0-9a-fA-F]{1,4}){1,4}|"
+    r"(?:[0-9a-fA-F]{1,4}:){1,2}(?::[0-9a-fA-F]{1,4}){1,5}|"
+    r"[0-9a-fA-F]{1,4}:(?:(?::[0-9a-fA-F]{1,4}){1,6})|"
+    r":(?:(?::[0-9a-fA-F]{1,4}){1,7}|:)))"
+)
+TIMESTAMP_REGEX: str = r"(?P<timestamp>[\w/: +]+)"
+METHOD_REGEX: str = r"(?P<method>[A-Z]{3,7})"
+PATH_REGEX: str = r"(?P<path>[\w/.?]+)"
+PROTOCOL_REGEX: str = r"(?P<protocol>[A-Z0-9./]+)"
+STATUS_REGEX: str = r"(?P<status>\d{3})"
+BYTES_REGEX: str = r"(?P<bytes_sent>\d+)"
+RESPONSE_TIME_REGEX: str = r"(?P<response_time_ms>[\d.]+)"
+USER_AGENT_REGEX: str = r"(?P<user_agent>.+)"
+LOG_LINE_REGEX = re.compile(
+    f'{IP_REGEX_STR} - - \\[{TIMESTAMP_REGEX}\\] "{METHOD_REGEX} {PATH_REGEX} {PROTOCOL_REGEX}" {STATUS_REGEX} {BYTES_REGEX} {RESPONSE_TIME_REGEX} "{USER_AGENT_REGEX}"'
+)
 
 
 def printerr(msg: str) -> None:
@@ -26,7 +50,7 @@ def validate_args(args: Namespace) -> bool:
 
 def parse_line(line: str) -> LineData | None:
     """Helper to parse the log line into the relevant component pieces."""
-    parsed = re.fullmatch(LOG_LINE_REGEX_STR, line)
+    parsed = LOG_LINE_REGEX.fullmatch(line)
     if not parsed:
         return None
     try:
