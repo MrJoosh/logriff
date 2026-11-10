@@ -1,0 +1,54 @@
+# Python implementation tasks.
+
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+# Show this module's recipes.
+[private]
+[default]
+help:
+    @just --list
+
+# Sync the Python environment.
+sync:
+    uv sync
+
+# Run the Python CLI with optional arguments.
+run *args:
+    uv run logriff {{args}}
+
+# Run the Python CLI against the sample log.
+sample:
+    uv run logriff ../data/sample.log
+
+# Show the Python CLI help.
+cli-help:
+    uv run logriff --help
+
+# Run the Python test suite.
+test:
+    uv run pytest tests/ -q
+
+# Run the Python tests with coverage.
+cov:
+    uv run pytest --cov=logriff --cov-report=term-missing tests/
+
+# Lint Python source and the data generator.
+lint:
+    uvx ruff check . ../data
+
+# Format Python source and the data generator.
+fmt:
+    uvx ruff format . ../data
+
+# Check Python formatting without changing files.
+fmt-check:
+    uvx ruff format --check . ../data
+
+# Build Python packages.
+build:
+    uv build
+
+# Remove Python build artifacts and caches.
+clean:
+    rm -rf dist build .coverage .pytest_cache .ruff_cache
+    find . -type d -name __pycache__ -prune -exec rm -rf {} +

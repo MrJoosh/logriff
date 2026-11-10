@@ -1,0 +1,25 @@
+# Data generation tasks.
+
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+# Show this module's recipes.
+[private]
+[default]
+help:
+    @just --list
+
+# Generate synthetic logs, e.g. `just data generate --lines 100 --out test.log`.
+generate *args:
+    python3 generate_logs.py {{args}}
+
+# Generate a deterministic 1M-line log for benchmarking.
+million:
+    python3 generate_logs.py --lines 1000000 --seed 42 --out test_1m.log
+
+# Run the data generator tests.
+test:
+    cd ../python && uv run pytest ../data/tests -q
+
+# Remove generated log data.
+clean:
+    rm -f test_*.log generated*.log

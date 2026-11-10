@@ -1,0 +1,27 @@
+# Lua implementation tasks.
+
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+# Show this module's recipes.
+[private]
+[default]
+help:
+    @just --list
+
+# Run the Lua implementation with optional arguments.
+run *args:
+    lua logriff.lua {{args}}
+
+# Check the Lua source, or skip if Lua is not installed.
+check:
+    if command -v luac >/dev/null 2>&1; then \
+        luac -p logriff.lua; \
+    elif command -v lua >/dev/null 2>&1; then \
+        lua -e 'assert(loadfile("logriff.lua"))'; \
+    else \
+        echo "Skipping Lua check: lua/luac not installed"; \
+    fi
+
+# Remove Lua bytecode artifacts.
+clean:
+    rm -f *.luac luac.out

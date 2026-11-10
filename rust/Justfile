@@ -1,0 +1,49 @@
+# Rust implementation tasks.
+
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+# Show this module's recipes.
+[private]
+[default]
+help:
+    @just --list
+
+# Fetch Rust dependencies.
+sync:
+    cargo fetch
+
+# Build the Rust implementation.
+build:
+    cargo build
+
+# Build the Rust implementation in release mode.
+release:
+    cargo build --release
+
+# Run the Rust implementation with optional arguments.
+run *args:
+    cargo run -- {{args}}
+
+# Run the Rust tests.
+test:
+    cargo test
+
+# Type-check the Rust implementation.
+check:
+    cargo check
+
+# Run Clippy with warnings treated as errors.
+lint:
+    cargo clippy --all-targets -- -D warnings
+
+# Format Rust source.
+fmt:
+    cargo fmt
+
+# Check Rust formatting without changing files.
+fmt-check:
+    cargo fmt --check
+
+# Remove Rust build artifacts.
+clean:
+    cargo clean
