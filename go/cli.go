@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -59,70 +58,69 @@ func validateArgs(a args) (args, error) {
 	return a, nil
 }
 
-func parseArgs(argv []string) (args, error) {
+func parseArgs(argv []string) (args, error, bool) {
 	var out args
 	var positional []string
 
 	for i := 0; i < len(argv); i++ {
 		switch argv[i] {
 		case "-h", "--help":
-			usage()
-			os.Exit(0)
+			return args{}, nil, true
 		case "-s", "--status-min":
 			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i])
+				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
 			}
 			i++
 			v, err := strconv.Atoi(argv[i])
 			if err != nil {
-				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i])
+				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i]), false
 			}
 			out.statusMin = v
 		case "-e", "--status-max":
 			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i])
+				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
 			}
 			i++
 			v, err := strconv.Atoi(argv[i])
 			if err != nil {
-				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i])
+				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i]), false
 			}
 			out.statusMax = v
 		case "-m", "--method":
 			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i])
+				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
 			}
 			i++
 			out.method = argv[i]
 		case "-p", "--path-prefix":
 			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i])
+				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
 			}
 			i++
 			out.path = argv[i]
 		case "--min-duration":
 			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i])
+				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
 			}
 			i++
 			v, err := strconv.ParseFloat(argv[i], 64)
 			if err != nil {
-				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i])
+				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i]), false
 			}
 			out.minDuration = v
 		case "-n", "--top-routes":
 			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i])
+				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
 			}
 			i++
 			v, err := strconv.Atoi(argv[i])
 			if err != nil {
-				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i])
+				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i]), false
 			}
 			out.topRoutes = v
 		case "-f", "--format":
 			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i])
+				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
 			}
 			i++
 			out.format = argv[i]
@@ -132,14 +130,14 @@ func parseArgs(argv []string) (args, error) {
 			positional = append(positional, argv[i])
 		default:
 			if strings.HasPrefix(argv[i], "-") {
-				return args{}, fmt.Errorf("unknown option: %s", argv[i])
+				return args{}, fmt.Errorf("unknown option: %s", argv[i]), false
 			}
 			positional = append(positional, argv[i])
 		}
 	}
 
 	if len(positional) > 1 {
-		return args{}, fmt.Errorf("unexpected arguments: %v", positional[1:])
+		return args{}, fmt.Errorf("unexpected arguments: %v", positional[1:]), false
 	} else if len(positional) == 0 {
 		out.file = "-"
 	} else {
@@ -148,7 +146,7 @@ func parseArgs(argv []string) (args, error) {
 
 	out, err := validateArgs(out)
 	if err != nil {
-		return out, err
+		return out, err, false
 	}
 
 	// Apply defaults
@@ -159,5 +157,5 @@ func parseArgs(argv []string) (args, error) {
 		out.format = "text"
 	}
 
-	return out, nil
+	return out, nil, false
 }
