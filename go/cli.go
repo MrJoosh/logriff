@@ -91,7 +91,7 @@ func parseArgs(argv []string) (args, error, bool) {
 				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
 			}
 			i++
-			out.method = argv[i]
+			out.method = strings.ToUpper(argv[i])
 		case "-p", "--path-prefix":
 			if i+1 >= len(argv) {
 				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
