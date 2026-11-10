@@ -1,0 +1,41 @@
+# Go implementation tasks.
+
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+# Show this module's recipes.
+[private]
+[default]
+help:
+    @just --list
+
+# Download Go module dependencies.
+sync:
+    go mod download
+
+# Build the Go implementation.
+build:
+    go build -o logriff .
+
+# Run the Go implementation with optional arguments.
+run *args:
+    go run . {{args}}
+
+# Run the Go tests.
+test:
+    go test ./...
+
+# Run Go static analysis.
+vet:
+    go vet ./...
+
+# Format Go source.
+fmt:
+    gofmt -w .
+
+# Check Go formatting without changing files.
+fmt-check:
+    test -z "$(gofmt -l .)"
+
+# Remove the Go binary.
+clean:
+    rm -rf bin logriff logriff.exe

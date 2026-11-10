@@ -1,0 +1,29 @@
+# C++ implementation tasks.
+
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+# Show this module's recipes.
+[private]
+[default]
+help:
+    @just --list
+
+# Build the C++ implementation with CMake, falling back to the compiler.
+build:
+    mkdir -p build
+    if command -v cmake >/dev/null 2>&1; then \
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release; \
+        cmake --build build; \
+    else \
+        echo "cmake not found; compiling directly with ${CXX:-clang++}"; \
+        "${CXX:-clang++}" -std=c++20 -Wall -Wextra -Wpedantic \
+            src/main.cpp -o build/logriff; \
+    fi
+
+# Run the C++ implementation with optional arguments.
+run *args: build
+    ./build/logriff {{args}}
+
+# Remove C++ build artifacts.
+clean:
+    rm -rf build
