@@ -2,39 +2,6 @@ package main
 
 import "testing"
 
-func genFields(f lineFields) []string {
-	if f.addr == "" {
-		f.addr = "192.168.1.10"
-	}
-	if f.timestamp == "" {
-		f.timestamp = "06/Nov/2026:08:12:01 +0000"
-	}
-	if f.method == "" {
-		f.method = "GET"
-	}
-	if f.path == "" {
-		f.path = "/api/v1/health"
-	}
-	if f.protocol == "" {
-		f.protocol = "HTTP/1.1"
-	}
-	if f.status == "" {
-		f.status = "200"
-	}
-	if f.bytes == "" {
-		f.bytes = "42"
-	}
-	if f.response == "" {
-		f.response = "1.2"
-	}
-	if f.userAgent == "" {
-		f.userAgent = "Go-http-client/1.1"
-	}
-
-	return []string{f.addr, f.timestamp, f.method, f.path, f.protocol, f.status, f.bytes, f.response, f.userAgent}
-
-}
-
 func Test_validator(t *testing.T) {
 	tests := []struct {
 		name string // description of this test case
