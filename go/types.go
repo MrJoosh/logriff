@@ -44,3 +44,13 @@ type lineData struct {
 	responseTimeMs float64
 	userAgent      string
 }
+
+type stats struct {
+	lines             int
+	matched           int
+	error             int
+	bytesVolume       int
+	responseTimes     []float64
+	statusCodes       map[int]int
+	routeDistribution map[string]int
+}
