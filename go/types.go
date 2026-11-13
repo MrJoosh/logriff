@@ -54,3 +54,34 @@ type stats struct {
 	statusCodes       map[int]int
 	routeDistribution map[string]int
 }
+
+type output struct {
+	summary     summary
+	traffic     int
+	latency     latency
+	statusCodes []statusCount
+	topRoutes   []routeCount
+}
+
+type summary struct {
+	total   int
+	matched int
+	error   int
+}
+
+type latency struct {
+	min  float64
+	mean float64
+	p95  float64
+	max  float64
+}
+
+type routeCount struct {
+	path  string
+	count int
+}
+
+type statusCount struct {
+	status int
+	count  int
+}

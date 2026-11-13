@@ -127,3 +127,16 @@ func genLineData(f lineFields) lineData {
 	}
 
 }
+
+func genFloats(min, max int) []float64 {
+	if min > max {
+		return []float64{}
+	}
+
+	s := make([]float64, (max-min)+1)
+	for n := range len(s) {
+		s[n] = float64(n + min)
+	}
+	fmt.Println(s)
+	return s
+}
