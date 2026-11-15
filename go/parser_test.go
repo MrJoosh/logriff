@@ -44,7 +44,7 @@ func Test_parseLine(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "reject obvious malformi blank",
+			name:    "reject obvious malform blank",
 			line:    "",
 			want:    []string{},
 			wantErr: true,
@@ -92,15 +92,45 @@ func Test_parseLine(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:    "common urls chars accepted - dash",
+			name:    "common urls chars accepted dash",
 			line:    genLog(lineFields{path: "/files/hello-world"}),
 			want:    []string{"192.168.1.10", "06/Nov/2026:08:12:01 +0000", "GET", "/files/hello-world", "HTTP/1.1", "200", "42", "1.2", "Go-http-client/1.1"},
 			wantErr: false,
 		},
 		{
-			name:    "common urls chars accepted - url encode",
+			name:    "common urls chars accepted url encode",
 			line:    genLog(lineFields{path: "/files/a%20b.txt"}),
 			want:    []string{"192.168.1.10", "06/Nov/2026:08:12:01 +0000", "GET", "/files/a%20b.txt", "HTTP/1.1", "200", "42", "1.2", "Go-http-client/1.1"},
+			wantErr: false,
+		},
+		{
+			name:    "common url chars accepted query string",
+			line:    genLog(lineFields{path: "/api/v1/items?page=2&foo=bar&user=@me"}),
+			want:    []string{"192.168.1.10", "06/Nov/2026:08:12:01 +0000", "GET", "/api/v1/items?page=2&foo=bar&user=@me", "HTTP/1.1", "200", "42", "1.2", "Go-http-client/1.1"},
+			wantErr: false,
+		},
+		{
+			name:    "ISO-like timestamp support",
+			line:    genLog(lineFields{timestamp: "2026-11-15T08:08:19.12345Z"}),
+			want:    []string{"192.168.1.10", "2026-11-15T08:08:19.12345Z", "GET", "/api/v1/health", "HTTP/1.1", "200", "42", "1.2", "Go-http-client/1.1"},
+			wantErr: false,
+		},
+		{
+			name:    "IPv6 IPv4 mapped",
+			line:    genLog(lineFields{addr: "::ffff:192.168.1.1"}),
+			want:    []string{"::ffff:192.168.1.1", "06/Nov/2026:08:12:01 +0000", "GET", "/api/v1/health", "HTTP/1.1", "200", "42", "1.2", "Go-http-client/1.1"},
+			wantErr: false,
+		},
+		{
+			name:    "IPv6 zone scoped",
+			line:    genLog(lineFields{addr: "fe80::1%eth0"}),
+			want:    []string{"fe80::1%eth0", "06/Nov/2026:08:12:01 +0000", "GET", "/api/v1/health", "HTTP/1.1", "200", "42", "1.2", "Go-http-client/1.1"},
+			wantErr: false,
+		},
+		{
+			name:    "empty quoted user-agent",
+			line:    genLog(lineFields{userAgent: ""}),
+			want:    []string{"192.168.1.10", "06/Nov/2026:08:12:01 +0000", "GET", "/api/v1/health", "HTTP/1.1", "200", "42", "1.2", ""},
 			wantErr: false,
 		},
 	}
