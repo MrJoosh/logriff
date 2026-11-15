@@ -62,9 +62,15 @@ func run() ExitCode {
 	}
 	switch args.format {
 	case "json":
-		fmt.Println(aggregate(stats).toJson(args.topRoutes))
+		_, err := fmt.Println(aggregate(stats).toJson(args.topRoutes))
+		if err != nil {
+			return ExitIOError
+		}
 	case "text":
-		fmt.Println(aggregate(stats).toText(args.topRoutes))
+		_, err := fmt.Println(aggregate(stats).toText(args.topRoutes))
+		if err != nil {
+			return ExitIOError
+		}
 	}
 	return ExitSuccess
 }
