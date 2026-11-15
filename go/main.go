@@ -7,8 +7,6 @@ import (
 )
 
 func run() ExitCode {
-	// TODO: parse flags, stream input, apply filters, aggregate metrics, and emit output.
-	// See README.md for the full CLI specification and output formats.
 	argv := os.Args[1:]
 	args, err, help := parseArgs(argv)
 	if err != nil {
@@ -23,8 +21,9 @@ func run() ExitCode {
 	if args.file == "-" {
 		in = os.Stdin
 	} else {
-		in, err := os.Open(args.file)
+		in, err = os.Open(args.file)
 		if err != nil {
+			fmt.Println(err)
 			return ExitIOError
 		}
 		defer in.Close()
@@ -59,7 +58,12 @@ func run() ExitCode {
 	if err := scanner.Err(); err != nil {
 		return ExitIOError
 	}
-	fmt.Println(stats)
+	switch args.format {
+	case "json":
+		fmt.Println(aggregate(stats).toJson(args.topRoutes))
+	case "text":
+		fmt.Println(aggregate(stats).toText(args.topRoutes))
+	}
 	return ExitSuccess
 }
 
