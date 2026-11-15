@@ -29,10 +29,11 @@ func run() ExitCode {
 		defer in.Close()
 	}
 	stats := stats{statusCodes: make(map[int]int), routeDistribution: make(map[string]int)}
+	re := getParseRegex()
 	scanner := bufio.NewScanner(in)
 	for scanner.Scan() {
 		stats.lines++
-		parsed, err := parseLine(scanner.Text())
+		parsed, err := parseLine(scanner.Text(), re)
 		if err != nil {
 			if !args.strict {
 				stats.error++
