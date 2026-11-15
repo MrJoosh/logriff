@@ -36,6 +36,7 @@ func run() ExitCode {
 		if err != nil {
 			if !args.strict {
 				stats.error++
+				continue
 			}
 			return ExitStrictError
 		}
@@ -43,6 +44,7 @@ func run() ExitCode {
 		if err != nil {
 			if !args.strict {
 				stats.error++
+				continue
 			}
 			return ExitStrictError
 		}
