@@ -129,7 +129,7 @@ func Test_parseLine(t *testing.T) {
 		},
 		{
 			name:    "empty quoted user-agent",
-			line:    genLog(lineFields{userAgent: ""}),
+			line:    genLog(lineFields{userAgent: "<blank>"}),
 			want:    []string{"192.168.1.10", "06/Nov/2026:08:12:01 +0000", "GET", "/api/v1/health", "HTTP/1.1", "200", "42", "1.2", ""},
 			wantErr: false,
 		},

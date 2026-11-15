@@ -24,7 +24,7 @@ var lineRegexStr []string = []string{
 	// extra
 	` - - \[`,
 	// timestamp
-	`(?P<timestamp>[\w/: +]+)`,
+	`(?P<timestamp>[\w/: +TZ.-]+)`,
 	// extra
 	`\] "`,
 	// method
@@ -32,7 +32,7 @@ var lineRegexStr []string = []string{
 	// extra
 	` `,
 	// path
-	`(?P<path>[\w/.?=%-]+)`,
+	`(?P<path>[\w/.?=%&@-]+)`,
 	// extra
 	` `,
 	// protocol
@@ -52,7 +52,7 @@ var lineRegexStr []string = []string{
 	// extra
 	` "`,
 	// user agent
-	`(?P<user_agent>.+)`,
+	`(?P<user_agent>.*)`,
 	// extra
 	`"`,
 	// end of line

@@ -34,8 +34,11 @@ func genLog(f lineFields) string {
 	if f.response == "" {
 		f.response = "1.2"
 	}
-	if f.userAgent == "" {
+	switch f.userAgent {
+	case "":
 		f.userAgent = "Go-http-client/1.1"
+	case "<blank>":
+		f.userAgent = ""
 	}
 
 	return fmt.Sprintf("%s - - [%s] \"%s %s %s\" %s %s %s \"%s\"", f.addr, f.timestamp, f.method, f.path, f.protocol, f.status, f.bytes, f.response, f.userAgent)
