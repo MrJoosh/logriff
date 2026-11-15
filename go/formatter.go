@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -122,7 +123,7 @@ func (o output) toText(numRoutes ...int) string {
 		comma(o.summary.total),
 		comma(o.summary.matched),
 		comma(o.summary.error),
-		float64(o.traffic)/float64(1e+9),
+		float64(o.traffic)/math.Pow(2, 30),
 		comma(o.traffic),
 		o.latency.min,
 		o.latency.mean,
