@@ -113,7 +113,7 @@ func (o output) toText(numRoutes ...int) string {
 		if i == n {
 			break
 		}
-		rBuf = append(rBuf, fmt.Sprintf(`%v. %-33s : %v`, i+1, r.path, r.count))
+		rBuf = append(rBuf, fmt.Sprintf(`%v. %-33s : %s`, i+1, r.path, comma(r.count)))
 	}
 
 	tr := strings.Join(rBuf, "\n")
