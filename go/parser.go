@@ -10,17 +10,7 @@ var lineRegexStr []string = []string{
 	// start of line
 	`^`,
 	// ip
-	`(?P<remote_addr>(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}`,
-	`(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])|`,
-	`(?:(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|`,
-	`(?:[0-9a-fA-F]{1,4}:){1,7}:|`,
-	`(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|`,
-	`(?:[0-9a-fA-F]{1,4}:){1,5}(?::[0-9a-fA-F]{1,4}){1,2}|`,
-	`(?:[0-9a-fA-F]{1,4}:){1,4}(?::[0-9a-fA-F]{1,4}){1,3}|`,
-	`(?:[0-9a-fA-F]{1,4}:){1,3}(?::[0-9a-fA-F]{1,4}){1,4}|`,
-	`(?:[0-9a-fA-F]{1,4}:){1,2}(?::[0-9a-fA-F]{1,4}){1,5}|`,
-	`[0-9a-fA-F]{1,4}:(?:(?::[0-9a-fA-F]{1,4}){1,6})|`,
-	`:(?:(?::[0-9a-fA-F]{1,4}){1,7}|:)))`,
+	`(?P<remote_addr>[a-z0-9.:%]+)`,
 	// extra
 	` - - \[`,
 	// timestamp
@@ -59,14 +49,7 @@ var lineRegexStr []string = []string{
 	`$`,
 }
 
-func parseLine(line string) ([]string, error) {
-	// Build the regex
-	var b strings.Builder
-	for _, s := range lineRegexStr {
-		b.WriteString(s)
-	}
-	re := regexp.MustCompile(b.String())
-	// Parse the line using the regex
+func parseLine(line string, re *regexp.Regexp) ([]string, error) {
 	matches := re.FindAllStringSubmatch(line, -1)
 	if len(matches) != 1 {
 		return []string{}, fmt.Errorf("failed to parse input line: %s", line)
@@ -75,4 +58,12 @@ func parseLine(line string) ([]string, error) {
 		return []string{}, fmt.Errorf("failed to parse input line: %s", line)
 	}
 	return matches[0][1:], nil
+}
+
+func getParseRegex() *regexp.Regexp {
+	var b strings.Builder
+	for _, s := range lineRegexStr {
+		b.WriteString(s)
+	}
+	return regexp.MustCompile(b.String())
 }

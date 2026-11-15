@@ -2,11 +2,15 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"strconv"
 	"strings"
 )
 
 func validator(f []string) (lineData, error) {
+	if net.ParseIP(f[0]) == nil {
+		return lineData{}, fmt.Errorf("invalid remote address: %s", f[0])
+	}
 	remoteAddr := f[0]
 	timestamp := f[1]
 	method := f[2]

@@ -80,18 +80,6 @@ func Test_parseLine(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "invalid ipv4 all octets",
-			line:    genLog(lineFields{addr: "999.999.999.999"}),
-			want:    []string{},
-			wantErr: true,
-		},
-		{
-			name:    "invalid ipv4 one octet",
-			line:    genLog(lineFields{addr: "256.1.1.1"}),
-			want:    []string{},
-			wantErr: true,
-		},
-		{
 			name:    "common urls chars accepted dash",
 			line:    genLog(lineFields{path: "/files/hello-world"}),
 			want:    []string{"192.168.1.10", "06/Nov/2026:08:12:01 +0000", "GET", "/files/hello-world", "HTTP/1.1", "200", "42", "1.2", "Go-http-client/1.1"},

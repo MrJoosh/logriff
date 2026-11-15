@@ -11,6 +11,18 @@ func Test_validator(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			name:    "invalid ipv4 all octets",
+			f:       genFields(lineFields{addr: "999.999.999.999"}),
+			want:    lineData{},
+			wantErr: true,
+		},
+		{
+			name:    "invalid ipv4 one octet",
+			f:       genFields(lineFields{addr: "256.1.1.1"}),
+			want:    lineData{},
+			wantErr: true,
+		},
+		{
 			name:    "invalid status not int",
 			f:       genFields(lineFields{status: "20x"}),
 			want:    lineData{},
