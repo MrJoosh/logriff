@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"net"
+	"net/netip"
 	"strconv"
 	"strings"
 )
 
 func validator(f []string) (lineData, error) {
-	if net.ParseIP(f[0]) == nil {
+	_, err := netip.ParseAddr(f[0])
+	if err != nil {
 		return lineData{}, fmt.Errorf("invalid remote address: %s", f[0])
 	}
 	remoteAddr := f[0]

@@ -10,7 +10,7 @@ var lineRegexStr []string = []string{
 	// start of line
 	`^`,
 	// ip
-	`(?P<remote_addr>[a-z0-9.:%]+)`,
+	`(?P<remote_addr>[A-Za-z0-9.:%]+)`,
 	// extra
 	` - - \[`,
 	// timestamp
