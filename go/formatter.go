@@ -7,11 +7,7 @@ import (
 	"strings"
 )
 
-func (o output) toJson(numRoutes ...int) string {
-	n := 5
-	if len(numRoutes) > 0 {
-		n = numRoutes[0]
-	}
+func (o output) toJson(n int) string {
 	jsonTemplate := []string{
 		`{`,
 		`"summary": {`,
@@ -74,11 +70,7 @@ func (o output) toJson(numRoutes ...int) string {
 	)
 }
 
-func (o output) toText(numRoutes ...int) string {
-	n := 5
-	if len(numRoutes) > 0 {
-		n = numRoutes[0]
-	}
+func (o output) toText(n int) string {
 	textTemplate := []string{
 		`=== LogRiff Summary ===`,
 		`Lines Processed : %s`,
