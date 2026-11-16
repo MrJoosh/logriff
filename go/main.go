@@ -38,6 +38,7 @@ func run(argv []string) ExitCode {
 				stats.error++
 				continue
 			}
+			fmt.Println(err)
 			return ExitStrictError
 		}
 		validated, err := validator(parsed)
@@ -46,6 +47,7 @@ func run(argv []string) ExitCode {
 				stats.error++
 				continue
 			}
+			fmt.Println(err)
 			return ExitStrictError
 		}
 		if !filter(validated, args) {
@@ -58,17 +60,20 @@ func run(argv []string) ExitCode {
 		stats.routeDistribution[validated.path]++
 	}
 	if err := scanner.Err(); err != nil {
+		fmt.Println(err)
 		return ExitIOError
 	}
 	switch args.format {
 	case "json":
 		_, err := fmt.Println(aggregate(stats).toJson(args.topRoutes))
 		if err != nil {
+			fmt.Println(err)
 			return ExitIOError
 		}
 	case "text":
 		_, err := fmt.Println(aggregate(stats).toText(args.topRoutes))
 		if err != nil {
+			fmt.Println(err)
 			return ExitIOError
 		}
 	}
