@@ -93,8 +93,8 @@ func Test_parseLine(t *testing.T) {
 		},
 		{
 			name:    "common url chars accepted query string",
-			line:    genLog(lineFields{path: "/api/v1/items?page=2&foo=bar&user=@me"}),
-			want:    []string{"192.168.1.10", "06/Nov/2026:08:12:01 +0000", "GET", "/api/v1/items?page=2&foo=bar&user=@me", "HTTP/1.1", "200", "42", "1.2", "Go-http-client/1.1"},
+			line:    genLog(lineFields{path: "/api/v1/items?page=2&foo=bar&user=@me&~group=|bar"}),
+			want:    []string{"192.168.1.10", "06/Nov/2026:08:12:01 +0000", "GET", "/api/v1/items?page=2&foo=bar&user=@me&~group=|bar", "HTTP/1.1", "200", "42", "1.2", "Go-http-client/1.1"},
 			wantErr: false,
 		},
 		{

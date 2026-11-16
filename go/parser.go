@@ -22,7 +22,7 @@ var lineRegexStr []string = []string{
 	// extra
 	` `,
 	// path
-	`(?P<path>[\w/.?=%&@-]+)`,
+	`(?P<path>[\w/.?=%&@:#\[\]@!$'\(\)*+,;~\|-]+)`,
 	// extra
 	` `,
 	// protocol
