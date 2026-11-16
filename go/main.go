@@ -6,8 +6,7 @@ import (
 	"os"
 )
 
-func run() ExitCode {
-	argv := os.Args[1:]
+func run(argv []string) ExitCode {
 	args, err, help := parseArgs(argv)
 	if err != nil {
 		fmt.Println(err)
@@ -77,6 +76,7 @@ func run() ExitCode {
 }
 
 func main() {
-	rc := run()
+	argv := os.Args[1:]
+	rc := run(argv)
 	os.Exit(int(rc))
 }
