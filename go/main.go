@@ -3,13 +3,15 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 )
 
 func run(argv []string) ExitCode {
+	l := log.New(os.Stderr, "", 0)
 	args, err, help := parseArgs(argv)
 	if err != nil {
-		fmt.Println(err)
+		l.Println(err)
 		usage()
 		return ExitValidationError
 	} else if help == true {
@@ -22,7 +24,7 @@ func run(argv []string) ExitCode {
 	} else {
 		in, err = os.Open(args.file)
 		if err != nil {
-			fmt.Println(err)
+			l.Println(err)
 			return ExitIOError
 		}
 		defer in.Close()
@@ -40,7 +42,7 @@ func run(argv []string) ExitCode {
 				stats.error++
 				continue
 			}
-			fmt.Println(err)
+			l.Println(err)
 			return ExitStrictError
 		}
 		validated, err := validator(parsed)
@@ -49,7 +51,7 @@ func run(argv []string) ExitCode {
 				stats.error++
 				continue
 			}
-			fmt.Println(err)
+			l.Println(err)
 			return ExitStrictError
 		}
 		if !filter(validated, args) {
@@ -62,20 +64,20 @@ func run(argv []string) ExitCode {
 		stats.routeDistribution[validated.path]++
 	}
 	if err := scanner.Err(); err != nil {
-		fmt.Println(err)
+		l.Println(err)
 		return ExitIOError
 	}
 	switch args.format {
 	case "json":
 		_, err := fmt.Println(aggregate(stats).toJson(args.topRoutes))
 		if err != nil {
-			fmt.Println(err)
+			l.Println(err)
 			return ExitIOError
 		}
 	case "text":
 		_, err := fmt.Println(aggregate(stats).toText(args.topRoutes))
 		if err != nil {
-			fmt.Println(err)
+			l.Println(err)
 			return ExitIOError
 		}
 	}
