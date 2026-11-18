@@ -3,12 +3,31 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
 )
 
-func run(argv []string) ExitCode {
-	l := log.New(os.Stderr, "", 0)
+type Env struct {
+	Stdin  io.Reader
+	Stdout io.Writer
+	Stderr io.Writer
+	Open   func(name string) (io.ReadCloser, error)
+}
+
+func DefaultEnv() Env {
+	return Env{
+		Stdin:  os.Stdin,
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
+		Open: func(name string) (io.ReadCloser, error) {
+			return os.Open(name)
+		},
+	}
+}
+
+func run(argv []string, env Env) ExitCode {
+	l := log.New(env.Stderr, "", 0)
 	args, err, help := parseArgs(argv)
 	if err != nil {
 		l.Println(err)
@@ -18,22 +37,26 @@ func run(argv []string) ExitCode {
 		usage(l)
 		return ExitSuccess
 	}
-	var in *os.File
+
+	var in io.Reader
 	if args.file == "-" {
-		in = os.Stdin
+		in = env.Stdin
 	} else {
-		in, err = os.Open(args.file)
+		f, err := env.Open(args.file)
 		if err != nil {
 			l.Println(err)
 			return ExitIOError
 		}
-		defer in.Close()
+		defer f.Close()
+		in = f
 	}
+
 	stats := stats{statusCodes: make(map[int]int), routeDistribution: make(map[string]int)}
 	re := getParseRegex()
 	scanner := bufio.NewScanner(in)
 	buf := make([]byte, 64*1024)
 	scanner.Buffer(buf, 100*1024*1024)
+
 	for scanner.Scan() {
 		stats.lines++
 		parsed, err := parseLine(scanner.Text(), re)
@@ -63,19 +86,21 @@ func run(argv []string) ExitCode {
 		stats.statusCodes[validated.status]++
 		stats.routeDistribution[validated.path]++
 	}
+
 	if err := scanner.Err(); err != nil {
 		l.Println(err)
 		return ExitIOError
 	}
+
 	switch args.format {
 	case "json":
-		_, err := fmt.Println(aggregate(stats).toJson(args.topRoutes))
+		_, err := fmt.Fprintln(env.Stdout, aggregate(stats).toJson(args.topRoutes))
 		if err != nil {
 			l.Println(err)
 			return ExitIOError
 		}
 	case "text":
-		_, err := fmt.Println(aggregate(stats).toText(args.topRoutes))
+		_, err := fmt.Fprintln(env.Stdout, aggregate(stats).toText(args.topRoutes))
 		if err != nil {
 			l.Println(err)
 			return ExitIOError
@@ -85,7 +110,6 @@ func run(argv []string) ExitCode {
 }
 
 func main() {
-	argv := os.Args[1:]
-	rc := run(argv)
+	rc := run(os.Args[1:], DefaultEnv())
 	os.Exit(int(rc))
 }
