@@ -12,10 +12,10 @@ func run(argv []string) ExitCode {
 	args, err, help := parseArgs(argv)
 	if err != nil {
 		l.Println(err)
-		usage()
+		usage(l)
 		return ExitValidationError
 	} else if help == true {
-		usage()
+		usage(l)
 		return ExitSuccess
 	}
 	var in *os.File
