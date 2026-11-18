@@ -33,7 +33,7 @@ func run(argv []string) ExitCode {
 	re := getParseRegex()
 	scanner := bufio.NewScanner(in)
 	buf := make([]byte, 64*1024)
-	scanner.Buffer(buf, 10*1024*1024)
+	scanner.Buffer(buf, 100*1024*1024)
 	for scanner.Scan() {
 		stats.lines++
 		parsed, err := parseLine(scanner.Text(), re)
