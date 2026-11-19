@@ -125,7 +125,7 @@ func Test_parseArgsInvalid(t *testing.T) {
 		},
 		{
 			name:     "negative top routes",
-			argv:     []string{"-n", "-1", "/foo/bar"},
+			argv:     []string{"-n", "-10", "/foo/bar"},
 			want:     args{},
 			wantErr:  true,
 			wantHelp: false,

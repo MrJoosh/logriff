@@ -60,8 +60,10 @@ func validateArgs(a args) (args, error) {
 }
 
 func parseArgs(argv []string) (args, error, bool) {
-	var out args
 	var positional []string
+	out := args{
+		topRoutes: -1,
+	}
 
 	for i := 0; i < len(argv); i++ {
 		switch argv[i] {
@@ -145,17 +147,17 @@ func parseArgs(argv []string) (args, error, bool) {
 		out.file = positional[0]
 	}
 
-	out, err := validateArgs(out)
-	if err != nil {
-		return out, err, false
-	}
-
 	// Apply defaults
-	if out.topRoutes == 0 {
+	if out.topRoutes == -1 {
 		out.topRoutes = 5
 	}
 	if out.format == "" {
 		out.format = "text"
+	}
+
+	out, err := validateArgs(out)
+	if err != nil {
+		return out, err, false
 	}
 
 	return out, nil, false
