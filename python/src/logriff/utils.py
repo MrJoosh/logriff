@@ -119,7 +119,7 @@ def generate_output(format: str, num_top_routes: int, stats: Stats) -> str:
                 k: v
                 for k, v in sorted(
                     stats.route_distribution.items(),
-                    key=lambda x: x[1],
+                    key=lambda x: (x[1], x[0]),
                     reverse=True,
                 )
             }.items()
