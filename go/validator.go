@@ -38,6 +38,9 @@ func validator(f []string) (lineData, error) {
 	if err != nil {
 		return lineData{}, fmt.Errorf("could not convert response time to float: %s", f[6])
 	}
+	if responseTimeMs < 0 {
+		return lineData{}, fmt.Errorf("response time should not be negative: %v", responseTimeMs)
+	}
 	userAgent := f[8]
 
 	return lineData{

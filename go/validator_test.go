@@ -59,6 +59,12 @@ func Test_validator(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name:    "response time negative",
+			f:       genFields(lineFields{response: "-1.23"}),
+			want:    lineData{},
+			wantErr: true,
+		},
+		{
 			name:    "invalid method",
 			f:       genFields(lineFields{response: "FLY"}),
 			want:    lineData{},

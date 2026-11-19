@@ -38,7 +38,7 @@ var lineRegexStr []string = []string{
 	// extra
 	` `,
 	// response time
-	`(?P<response_time_ms>[\d.]+)`,
+	`(?P<response_time_ms>[\d.e+-]+)`,
 	// extra
 	` "`,
 	// user agent
