@@ -8,26 +8,56 @@ import (
 	"os"
 )
 
-type Env struct {
-	Stdin  io.Reader
-	Stdout io.Writer
-	Stderr io.Writer
-	Open   func(name string) (io.ReadCloser, error)
+type FileOpener interface {
+	Open(name string) (io.ReadCloser, error)
 }
 
-func DefaultEnv() Env {
-	return Env{
-		Stdin:  os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-		Open: func(name string) (io.ReadCloser, error) {
-			return os.Open(name)
-		},
+type StdinProvider interface {
+	Stdin() io.Reader
+}
+
+type StdoutProvider interface {
+	Stdout() io.Writer
+}
+
+type StderrProvider interface {
+	Stderr() io.Writer
+}
+
+type Runtime interface {
+	StdinProvider
+	StdoutProvider
+	StderrProvider
+	FileOpener
+}
+
+type osRuntime struct{}
+
+func (osRuntime) Stdin() io.Reader  { return os.Stdin }
+func (osRuntime) Stdout() io.Writer { return os.Stdout }
+func (osRuntime) Stderr() io.Writer { return os.Stderr }
+func (osRuntime) Open(name string) (io.ReadCloser, error) {
+	return os.Open(name)
+}
+
+func writeOutput(out StdoutProvider, format string, output output, numRoutes int) error {
+	switch format {
+	case "json":
+		_, err := fmt.Fprintln(out.Stdout(), output.toJson(numRoutes))
+		if err != nil {
+			return err
+		}
+	case "text":
+		_, err := fmt.Fprintln(out.Stdout(), output.toText(numRoutes))
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func run(argv []string, env Env) ExitCode {
-	l := log.New(env.Stderr, "", 0)
+func run(argv []string, rt Runtime) ExitCode {
+	l := log.New(rt.Stderr(), "", 0)
 	args, err, help := parseArgs(argv)
 	if err != nil {
 		l.Println(err)
@@ -40,9 +70,9 @@ func run(argv []string, env Env) ExitCode {
 
 	var in io.Reader
 	if args.file == "-" {
-		in = env.Stdin
+		in = rt.Stdin()
 	} else {
-		f, err := env.Open(args.file)
+		f, err := rt.Open(args.file)
 		if err != nil {
 			l.Println(err)
 			return ExitIOError
@@ -92,24 +122,15 @@ func run(argv []string, env Env) ExitCode {
 		return ExitIOError
 	}
 
-	switch args.format {
-	case "json":
-		_, err := fmt.Fprintln(env.Stdout, aggregate(stats).toJson(args.topRoutes))
-		if err != nil {
-			l.Println(err)
-			return ExitIOError
-		}
-	case "text":
-		_, err := fmt.Fprintln(env.Stdout, aggregate(stats).toText(args.topRoutes))
-		if err != nil {
-			l.Println(err)
-			return ExitIOError
-		}
+	if err := writeOutput(rt, args.format, aggregate(stats), args.topRoutes); err != nil {
+		l.Println(err)
+		return ExitIOError
 	}
+
 	return ExitSuccess
 }
 
 func main() {
-	rc := run(os.Args[1:], DefaultEnv())
+	rc := run(os.Args[1:], osRuntime{})
 	os.Exit(int(rc))
 }
