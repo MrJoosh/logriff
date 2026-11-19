@@ -140,6 +140,5 @@ func genFloats(min, max int) []float64 {
 	for n := range len(s) {
 		s[n] = float64(n + min)
 	}
-	fmt.Println(s)
 	return s
 }
