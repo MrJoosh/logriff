@@ -22,7 +22,7 @@ func validator(f []string) (lineData, error) {
 	protocol := f[4]
 	status, err := strconv.Atoi(f[5])
 	if err != nil {
-		return lineData{}, fmt.Errorf("could not convert status to int: %s", f[0])
+		return lineData{}, fmt.Errorf("could not convert status to int: %s", f[5])
 	}
 	if status < 100 || status > 599 {
 		return lineData{}, fmt.Errorf("invalid http status: %v", status)
@@ -36,7 +36,7 @@ func validator(f []string) (lineData, error) {
 	}
 	responseTimeMs, err := strconv.ParseFloat(f[7], 64)
 	if err != nil {
-		return lineData{}, fmt.Errorf("could not convert response time to float: %s", f[6])
+		return lineData{}, fmt.Errorf("could not convert response time to float: %s", f[7])
 	}
 	if responseTimeMs < 0 {
 		return lineData{}, fmt.Errorf("response time should not be negative: %v", responseTimeMs)
