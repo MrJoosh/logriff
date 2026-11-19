@@ -2,36 +2,35 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 )
 
-func usage(l *log.Logger) {
-	l.Println("usage: logriff [-h] [-s STATUS_MIN] [-e STATUS_MAX] [-m {CONNECT,DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT,TRACE}] [-p PATH_PREFIX] [--min-duration MIN_DURATION] [-n TOP_ROUTES] [-f {text,json}] [--strict] [file]")
-	l.Println("")
-	l.Println("Filter and aggregate logs.")
-	l.Println("")
-	l.Println("positional arguments:")
-	l.Println("  file                  input file, or - for stdin")
-	l.Println("")
-	l.Println("options:")
-	l.Println("  -h, --help            show this help message and exit")
-	l.Println("  -s, --status-min STATUS_MIN")
-	l.Println("                        keep records with status >= MIN")
-	l.Println("  -e, --status-max STATUS_MAX")
-	l.Println("                        keep records with status <= MAX")
-	l.Println("  -m, --method {CONNECT,DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT,TRACE}")
-	l.Println("                        filter by HTTP verb (case-insensitive)")
-	l.Println("  -p, --path-prefix PATH_PREFIX")
-	l.Println("                        keep paths starting with this prefix")
-	l.Println("  --min-duration MIN_DURATION")
-	l.Println("                        keep records with response_time_ms >= duration")
-	l.Println("  -n, --top-routes TOP_ROUTES")
-	l.Println("                        number of top routes to show")
-	l.Println("  -f, --format {text,json}")
-	l.Println("                        output format")
-	l.Println("  --strict              exit non-zero on malformed lines")
+func usage() {
+	fmt.Println("usage: logriff [-h] [-s STATUS_MIN] [-e STATUS_MAX] [-m {CONNECT,DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT,TRACE}] [-p PATH_PREFIX] [--min-duration MIN_DURATION] [-n TOP_ROUTES] [-f {text,json}] [--strict] [file]")
+	fmt.Println("")
+	fmt.Println("Filter and aggregate logs.")
+	fmt.Println("")
+	fmt.Println("positional arguments:")
+	fmt.Println("  file                  input file, or - for stdin")
+	fmt.Println("")
+	fmt.Println("options:")
+	fmt.Println("  -h, --help            show this help message and exit")
+	fmt.Println("  -s, --status-min STATUS_MIN")
+	fmt.Println("                        keep records with status >= MIN")
+	fmt.Println("  -e, --status-max STATUS_MAX")
+	fmt.Println("                        keep records with status <= MAX")
+	fmt.Println("  -m, --method {CONNECT,DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT,TRACE}")
+	fmt.Println("                        filter by HTTP verb (case-insensitive)")
+	fmt.Println("  -p, --path-prefix PATH_PREFIX")
+	fmt.Println("                        keep paths starting with this prefix")
+	fmt.Println("  --min-duration MIN_DURATION")
+	fmt.Println("                        keep records with response_time_ms >= duration")
+	fmt.Println("  -n, --top-routes TOP_ROUTES")
+	fmt.Println("                        number of top routes to show")
+	fmt.Println("  -f, --format {text,json}")
+	fmt.Println("                        output format")
+	fmt.Println("  --strict              exit non-zero on malformed lines")
 }
 
 func validateArgs(a args) (args, error) {

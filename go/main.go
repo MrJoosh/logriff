@@ -61,10 +61,10 @@ func run(argv []string, rt Runtime) ExitCode {
 	args, err, help := parseArgs(argv)
 	if err != nil {
 		l.Println(err)
-		usage(l)
+		usage()
 		return ExitValidationError
 	} else if help == true {
-		usage(l)
+		usage()
 		return ExitSuccess
 	}
 
