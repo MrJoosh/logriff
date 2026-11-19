@@ -115,14 +115,22 @@ def generate_output(format: str, num_top_routes: int, stats: Stats) -> str:
         },
         "top_routes": [
             OutputTopRoute(path=path, count=count)
-            for path, count in {
-                k: v
-                for k, v in sorted(
-                    stats.route_distribution.items(),
-                    key=lambda x: (x[1], x[0]),
+            for path, count in dict(
+                sorted(
+                    dict(sorted(stats.route_distribution.items())).items(),
+                    key=lambda x: x[1],
                     reverse=True,
                 )
-            }.items()
+            ).items()
+            # for path, count in {
+            #     k: v
+            #     for k, v in sorted(
+            #         sorted(stats.route_distribution.items()),
+            #                     # {k: v for k, v in sorted(stats.route_distribution.items())}
+            #         key=lambda x: (x[1], x[0]),
+            #         reverse=True,
+            #     )
+            # }.items()
         ][:num_top_routes],
     }
     if format == "text":
@@ -157,5 +165,24 @@ Max             : {output_dict["latency_ms"]["max"]:.2f} ms
 {"\n".join(top_route_lines)}
 ========================
         """
+    lat = output_dict["latency_ms"]
+    output_payload = {
+        **output_dict,
+        "latency_ms": {
+            "min": "__LAT_MIN__",
+            "mean": "__LAT_MEAN__",
+            "p95": "__LAT_P95__",
+            "max": "__LAT_MAX__",
+        },
+    }
 
-    return json.dumps(output_dict)
+    output_str = json.dumps(output_payload)
+    replacements = {
+        '"__LAT_MIN__"': f"{lat['min']:.2f}",
+        '"__LAT_MEAN__"': f"{lat['mean']:.2f}",
+        '"__LAT_P95__"': f"{lat['p95']:.2f}",
+        '"__LAT_MAX__"': f"{lat['max']:.2f}",
+    }
+    for token, number in replacements.items():
+        output_str = output_str.replace(token, number)
+    return output_str

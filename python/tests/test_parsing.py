@@ -102,8 +102,8 @@ def test_text_format(sample_log, capsys) -> None:
     assert "Max             : 210.60 ms" in captured.out
     assert "200 :        2  ( 40.00%)" in captured.out
     assert "304 :        1  ( 20.00%)" in captured.out
-    assert "1. /assets/main.css" in captured.out
-    assert "0. /assets/main.css" not in captured.out
+    assert "1. /api/v1/auth/login" in captured.out
+    assert "0. /api/v1/auth/login" not in captured.out
 
 
 def test_json_output_contains_all_metrics(sample_log, capsys) -> None:
@@ -157,7 +157,7 @@ def test_filtered_metrics_only_include_matched_records(sample_log, capsys) -> No
         "500": 1,
     }
     assert output_json["latency_ms"]["min"] == 0.8
-    assert output_json["latency_ms"]["mean"] == pytest.approx(98.93333333333334)
+    assert output_json["latency_ms"]["mean"] == pytest.approx(98.93)
     assert output_json["latency_ms"]["p95"] == pytest.approx(198.08)
     assert output_json["latency_ms"]["max"] == 210.6
     assert {route["path"] for route in output_json["top_routes"]} == {
