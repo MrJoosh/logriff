@@ -157,5 +157,24 @@ Max             : {output_dict["latency_ms"]["max"]:.2f} ms
 {"\n".join(top_route_lines)}
 ========================
         """
+    lat = output_dict["latency_ms"]
+    output_payload = {
+        **output_dict,
+        "latency_ms": {
+            "min": "__LAT_MIN__",
+            "mean": "__LAT_MEAN__",
+            "p95": "__LAT_P95__",
+            "max": "__LAT_MAX__",
+        },
+    }
 
-    return json.dumps(output_dict)
+    output_str = json.dumps(output_payload)
+    replacements = {
+        '"__LAT_MIN__"': f"{lat['min']:.2f}",
+        '"__LAT_MEAN__"': f"{lat['mean']:.2f}",
+        '"__LAT_P95__"': f"{lat['p95']:.2f}",
+        '"__LAT_MAX__"': f"{lat['max']:.2f}",
+    }
+    for token, number in replacements.items():
+        output_str = output_str.replace(token, number)
+    return output_str
