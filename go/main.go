@@ -2,10 +2,12 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 type FileOpener interface {
@@ -83,43 +85,47 @@ func run(argv []string, rt Runtime) ExitCode {
 
 	stats := stats{statusCodes: make(map[int]int), routeDistribution: make(map[string]int)}
 	re := getParseRegex()
-	scanner := bufio.NewScanner(in)
-	buf := make([]byte, 64*1024)
-	scanner.Buffer(buf, 100*1024*1024)
+	reader := bufio.NewReader(in)
 
-	for scanner.Scan() {
-		stats.lines++
-		parsed, err := parseLine(scanner.Text(), re)
-		if err != nil {
-			if !args.strict {
-				stats.error++
+	for {
+		line, err := reader.ReadString('\n')
+		if len(line) > 0 {
+			line = strings.TrimRight(line, "\r\n")
+			parsed, err := parseLine(line, re)
+			stats.lines++
+			if err != nil {
+				if !args.strict {
+					stats.error++
+					continue
+				}
+				l.Println(err)
+				return ExitStrictError
+			}
+			validated, err := validator(parsed)
+			if err != nil {
+				if !args.strict {
+					stats.error++
+					continue
+				}
+				l.Println(err)
+				return ExitStrictError
+			}
+			if !filter(validated, args) {
 				continue
 			}
-			l.Println(err)
-			return ExitStrictError
+			stats.matched++
+			stats.bytesVolume += validated.bytesSent
+			stats.responseTimes = append(stats.responseTimes, validated.responseTimeMs)
+			stats.statusCodes[validated.status]++
+			stats.routeDistribution[validated.path]++
 		}
-		validated, err := validator(parsed)
 		if err != nil {
-			if !args.strict {
-				stats.error++
-				continue
+			if errors.Is(err, io.EOF) {
+				break
 			}
 			l.Println(err)
-			return ExitStrictError
+			return ExitIOError
 		}
-		if !filter(validated, args) {
-			continue
-		}
-		stats.matched++
-		stats.bytesVolume += validated.bytesSent
-		stats.responseTimes = append(stats.responseTimes, validated.responseTimeMs)
-		stats.statusCodes[validated.status]++
-		stats.routeDistribution[validated.path]++
-	}
-
-	if err := scanner.Err(); err != nil {
-		l.Println(err)
-		return ExitIOError
 	}
 
 	if err := writeOutput(rt, args.format, aggregate(stats), args.topRoutes); err != nil {
