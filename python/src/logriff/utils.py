@@ -115,14 +115,22 @@ def generate_output(format: str, num_top_routes: int, stats: Stats) -> str:
         },
         "top_routes": [
             OutputTopRoute(path=path, count=count)
-            for path, count in {
-                k: v
-                for k, v in sorted(
-                    stats.route_distribution.items(),
-                    key=lambda x: (x[1], x[0]),
+            for path, count in dict(
+                sorted(
+                    dict(sorted(stats.route_distribution.items())).items(),
+                    key=lambda x: x[1],
                     reverse=True,
                 )
-            }.items()
+            ).items()
+            # for path, count in {
+            #     k: v
+            #     for k, v in sorted(
+            #         sorted(stats.route_distribution.items()),
+            #                     # {k: v for k, v in sorted(stats.route_distribution.items())}
+            #         key=lambda x: (x[1], x[0]),
+            #         reverse=True,
+            #     )
+            # }.items()
         ][:num_top_routes],
     }
     if format == "text":
