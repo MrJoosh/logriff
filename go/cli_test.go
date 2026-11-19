@@ -237,6 +237,23 @@ func Test_parseArgs(t *testing.T) {
 			wantErr:  false,
 			wantHelp: false,
 		},
+		{
+			name: "long form equals type filters accepted",
+			argv: []string{"--status-min=300", "--format=json", "/foo/bar"},
+			want: args{
+				statusMin:   300,
+				statusMax:   0,
+				method:      "",
+				path:        "",
+				minDuration: 0,
+				topRoutes:   5,
+				format:      "json",
+				strict:      false,
+				file:        "/foo/bar",
+			},
+			wantErr:  false,
+			wantHelp: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

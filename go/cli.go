@@ -132,6 +132,10 @@ func parseArgs(argv []string) (args, error, bool) {
 			positional = append(positional, argv[i])
 		default:
 			if strings.HasPrefix(argv[i], "-") {
+				if strings.Contains(argv[i], "=") {
+					argv = append(argv, strings.SplitN(argv[i], "=", 2)...)
+					continue
+				}
 				return args{}, fmt.Errorf("unknown option: %s", argv[i]), false
 			}
 			positional = append(positional, argv[i])
