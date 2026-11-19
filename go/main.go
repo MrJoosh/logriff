@@ -7,7 +7,9 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 )
 
 type FileOpener interface {
@@ -137,6 +139,7 @@ func run(argv []string, rt Runtime) ExitCode {
 }
 
 func main() {
+	signal.Ignore(syscall.SIGPIPE)
 	rc := run(os.Args[1:], osRuntime{})
 	os.Exit(int(rc))
 }
