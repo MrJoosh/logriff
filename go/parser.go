@@ -6,6 +6,19 @@ import (
 	"strings"
 )
 
+const (
+	iRemoteAddr = iota
+	iTimestamp
+	iMethod
+	iPath
+	iProtocol
+	iStatus
+	iBytesSent
+	iRespTime
+	iUserAgent
+	fieldCount
+)
+
 var lineRegexStr []string = []string{
 	// start of line
 	`^`,
