@@ -138,11 +138,14 @@ func Test_parseArgsInvalid(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, gotErr := parseArgs(tt.argv)
 			if gotErr != nil {
-				if errors.Is(gotErr, errHelp) && !tt.wantHelp {
-					t.Fatal("unexpectedly got help flag")
+				if errors.Is(gotErr, errHelp) {
+					if !tt.wantHelp {
+						t.Fatal("got help unexpectedly")
+					}
+					return
 				}
-				if !errors.Is(gotErr, errHelp) && tt.wantHelp {
-					t.Fatal("didn't get expected help flag")
+				if tt.wantHelp {
+					t.Fatalf("parseArgs() error = %v, want help", gotErr)
 				}
 				if !tt.wantErr {
 					t.Errorf("parseArgs() failed: %v", gotErr)
@@ -151,6 +154,9 @@ func Test_parseArgsInvalid(t *testing.T) {
 			}
 			if tt.wantErr {
 				t.Fatal("parseArgs() succeeded unexpectedly")
+			}
+			if tt.wantHelp {
+				t.Fatal("didn't get expected help flag")
 			}
 			if got != tt.want {
 				t.Errorf("parseArgs() = %v, want %v", got, tt.want)
