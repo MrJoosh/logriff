@@ -15,25 +15,25 @@ const usageText = `usage: logriff [-h] [-s STATUS_MIN] [-e STATUS_MAX] [-m {CONN
 Filter and aggregate logs.
 
 positional arguments:
-	file                  input file, or - for stdin
+  file                  input file, or - for stdin
 
 options:
-	-h, --help            show this help message and exit
-	-s, --status-min STATUS_MIN
-												keep records with status >= MIN
-	-e, --status-max STATUS_MAX
-												keep records with status <= MAX
-	-m, --method {CONNECT,DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT,TRACE}
-												filter by HTTP verb (case-insensitive)
-	-p, --path-prefix PATH_PREFIX
-												keep paths starting with this prefix
-	--min-duration MIN_DURATION
-												keep records with response_time_ms >= duration
-	-n, --top-routes TOP_ROUTES
-												number of top routes to show
-	-f, --format {text,json}
-												output format
-	--strict              exit non-zero on malformed lines
+  -h, --help            show this help message and exit
+  -s, --status-min STATUS_MIN
+                        keep records with status >= MIN
+  -e, --status-max STATUS_MAX
+                        keep records with status <= MAX
+  -m, --method {CONNECT,DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT,TRACE}
+                        filter by HTTP verb (case-insensitive)
+  -p, --path-prefix PATH_PREFIX
+                        keep paths starting with this prefix
+  --min-duration MIN_DURATION
+                        keep records with response_time_ms >= duration
+  -n, --top-routes TOP_ROUTES
+                        number of top routes to show
+  -f, --format {text,json}
+                        output format
+  --strict              exit non-zero on malformed lines
 `
 
 func usage(w io.Writer) {
