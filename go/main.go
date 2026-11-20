@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -15,22 +14,6 @@ import (
 	"sync"
 	"syscall"
 )
-
-func writeOutput(out StdoutProvider, format string, output output, numRoutes int) error {
-	switch format {
-	case "json":
-		_, err := fmt.Fprintln(out.Stdout(), output.toJson(numRoutes))
-		if err != nil {
-			return err
-		}
-	case "text":
-		_, err := fmt.Fprintln(out.Stdout(), output.toText(numRoutes))
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
 
 func processLine(
 	re *regexp.Regexp,
