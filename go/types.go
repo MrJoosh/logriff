@@ -1,5 +1,10 @@
 package main
 
+import (
+	"io"
+	"os"
+)
+
 type ExitCode int
 
 const (
@@ -84,4 +89,46 @@ type routeCount struct {
 type statusCount struct {
 	status int
 	count  int
+}
+
+type FileOpener interface {
+	Open(name string) (io.ReadCloser, error)
+}
+
+type StdinProvider interface {
+	Stdin() io.Reader
+}
+
+type StdoutProvider interface {
+	Stdout() io.Writer
+}
+
+type StderrProvider interface {
+	Stderr() io.Writer
+}
+
+type Runtime interface {
+	StdinProvider
+	StdoutProvider
+	StderrProvider
+	FileOpener
+}
+
+type osRuntime struct{}
+
+func (osRuntime) Stdin() io.Reader  { return os.Stdin }
+func (osRuntime) Stdout() io.Writer { return os.Stdout }
+func (osRuntime) Stderr() io.Writer { return os.Stderr }
+func (osRuntime) Open(name string) (io.ReadCloser, error) {
+	return os.Open(name)
+}
+
+type result struct {
+	st  stats
+	err error
+}
+
+type exitInfo struct {
+	rc  ExitCode
+	err error
 }
