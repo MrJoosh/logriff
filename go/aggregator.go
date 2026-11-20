@@ -111,3 +111,18 @@ func aggregate(s stats) output {
 		topRoutes:   routes,
 	}
 }
+
+func mergeStats(m *stats, r stats) {
+	m.lines += r.lines
+	m.matched += r.matched
+	m.error += r.error
+	m.bytesVolume += r.bytesVolume
+
+	m.responseTimes = append(m.responseTimes, r.responseTimes...)
+	for code, count := range r.statusCodes {
+		m.statusCodes[code] += count
+	}
+	for route, count := range r.routeDistribution {
+		m.routeDistribution[route] += count
+	}
+}
