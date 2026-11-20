@@ -78,7 +78,7 @@ func run(argv []string, rt Runtime) ExitCode {
 	}
 
 	for range numWorkers {
-		mergeStats(&merged, <-results)
+		merged.merge(<-results)
 	}
 
 	if err := writeOutput(rt, args.format, aggregate(merged), args.topRoutes); err != nil {

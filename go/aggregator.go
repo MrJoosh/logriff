@@ -96,17 +96,17 @@ func aggregate(s stats) output {
 	}
 }
 
-func mergeStats(m *stats, r stats) {
-	m.lines += r.lines
-	m.matched += r.matched
-	m.error += r.error
-	m.bytesVolume += r.bytesVolume
+func (s *stats) merge(other stats) {
+	s.lines += other.lines
+	s.matched += other.matched
+	s.error += other.error
+	s.bytesVolume += other.bytesVolume
 
-	m.responseTimes = append(m.responseTimes, r.responseTimes...)
-	for code, count := range r.statusCodes {
-		m.statusCodes[code] += count
+	s.responseTimes = append(s.responseTimes, other.responseTimes...)
+	for code, count := range other.statusCodes {
+		s.statusCodes[code] += count
 	}
-	for route, count := range r.routeDistribution {
-		m.routeDistribution[route] += count
+	for route, count := range other.routeDistribution {
+		s.routeDistribution[route] += count
 	}
 }
