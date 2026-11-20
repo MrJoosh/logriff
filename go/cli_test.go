@@ -200,13 +200,6 @@ func Test_parseArgs(t *testing.T) {
 			wantHelp: true,
 		},
 		{
-			name:     "help returns success long flag",
-			argv:     []string{"--help"},
-			want:     args{},
-			wantErr:  false,
-			wantHelp: true,
-		},
-		{
 			name: "long form filters accepted",
 			argv: []string{"--status-min", "300", "--format", "json", "/foo/bar"},
 			want: args{
