@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 )
+
+const bytesPerGiB = 1 << 30
 
 func (o output) toJSON(n int) string {
 	jsonTemplate := []string{
@@ -115,7 +116,7 @@ func (o output) toText(n int) string {
 		comma(o.summary.total),
 		comma(o.summary.matched),
 		comma(o.summary.error),
-		float64(o.traffic)/math.Pow(2, 30),
+		float64(o.traffic)/bytesPerGiB,
 		comma(o.traffic),
 		o.latency.min,
 		o.latency.mean,
