@@ -50,14 +50,11 @@ var lineRegexStr []string = []string{
 }
 
 func parseLine(line string, re *regexp.Regexp) ([]string, error) {
-	matches := re.FindAllStringSubmatch(line, -1)
-	if len(matches) != 1 {
-		return []string{}, fmt.Errorf("failed to parse input line: %s", line)
+	m := re.FindStringSubmatch(line)
+	if m == nil || len(m)-1 != fieldCount {
+		return nil, fmt.Errorf("failed to parse input line: %s", line)
 	}
-	if len(matches[0]) < 9 {
-		return []string{}, fmt.Errorf("failed to parse input line: %s", line)
-	}
-	return matches[0][1:], nil
+	return m[1:], nil
 }
 
 func getParseRegex() *regexp.Regexp {
