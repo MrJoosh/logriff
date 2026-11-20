@@ -57,7 +57,7 @@ func validateArgs(a args) error {
 		return fmt.Errorf("filter for min-duration cannot be less than 0: %v", a.minDuration)
 	}
 	if a.topRoutes < 0 {
-		return fmt.Errorf("number of top-routes must be a positive non-zero integer: %v", a.topRoutes)
+		return fmt.Errorf("top-routes must >= 0: %v", a.topRoutes)
 	}
 	if a.format != "" && a.format != "text" && a.format != "json" {
 		return fmt.Errorf("invalid output format: %s", a.format)
@@ -180,7 +180,7 @@ func optValue(argv []string, i *int, name, val string, hasEq bool) (string, erro
 		return val, nil
 	}
 	if *i+1 >= len(argv) {
-		return "", fmt.Errorf("%s requries a value", name)
+		return "", fmt.Errorf("%s requires a value", name)
 	}
 	*i++
 	return argv[*i], nil
