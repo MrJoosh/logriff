@@ -115,7 +115,7 @@ func parseArgs(argv []string) (args, error) {
 			if err != nil {
 				return args{}, err
 			}
-			n, err := strconv.ParseFloat(argv[i], 64)
+			n, err := strconv.ParseFloat(v, 64)
 			if err != nil {
 				return args{}, fmt.Errorf("invalid %s: %q", name, v)
 			}
