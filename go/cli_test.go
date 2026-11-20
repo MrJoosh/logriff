@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
 func Test_parseArgsInvalid(t *testing.T) {
 	tests := []struct {
@@ -133,8 +136,14 @@ func Test_parseArgsInvalid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr, gotHelp := parseArgs(tt.argv)
+			got, gotErr := parseArgs(tt.argv)
 			if gotErr != nil {
+				if errors.Is(gotErr, errHelp) && !tt.wantHelp {
+					t.Fatal("unexpectedly got help flag")
+				}
+				if !errors.Is(gotErr, errHelp) && tt.wantHelp {
+					t.Fatal("didn't get expected help flag")
+				}
 				if !tt.wantErr {
 					t.Errorf("parseArgs() failed: %v", gotErr)
 				}
@@ -142,12 +151,6 @@ func Test_parseArgsInvalid(t *testing.T) {
 			}
 			if tt.wantErr {
 				t.Fatal("parseArgs() succeeded unexpectedly")
-			}
-			if gotHelp && !tt.wantHelp {
-				t.Fatal("unexpectedly got help flag")
-			}
-			if !gotHelp && tt.wantHelp {
-				t.Fatal("didn't get expected help flag")
 			}
 			if got != tt.want {
 				t.Errorf("parseArgs() = %v, want %v", got, tt.want)
@@ -257,8 +260,17 @@ func Test_parseArgs(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr, gotHelp := parseArgs(tt.argv)
+			got, gotErr := parseArgs(tt.argv)
 			if gotErr != nil {
+				if errors.Is(gotErr, errHelp) {
+					if !tt.wantHelp {
+						t.Fatal("got help unexpectedly")
+					}
+					return
+				}
+				if tt.wantHelp {
+					t.Fatalf("parseArgs() error = %v, want help", gotErr)
+				}
 				if !tt.wantErr {
 					t.Errorf("parseArgs() failed: %v", gotErr)
 				}
@@ -267,10 +279,7 @@ func Test_parseArgs(t *testing.T) {
 			if tt.wantErr {
 				t.Fatal("parseArgs() succeeded unexpectedly")
 			}
-			if gotHelp && !tt.wantHelp {
-				t.Fatal("unexpectedly got help flag")
-			}
-			if !gotHelp && tt.wantHelp {
+			if tt.wantHelp {
 				t.Fatal("didn't get expected help flag")
 			}
 			if got != tt.want {

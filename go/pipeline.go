@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"context"
 	"errors"
+	"fmt"
 	"io"
-	"log"
 	"regexp"
 	"runtime"
 	"strings"
@@ -13,15 +13,15 @@ import (
 )
 
 func run(argv []string, rt Runtime) ExitCode {
-	l := log.New(rt.Stderr(), "", 0)
-	args, err, help := parseArgs(argv)
-	if err != nil {
-		l.Println(err)
-		usage()
-		return ExitValidationError
-	} else if help == true {
-		usage()
+	args, err := parseArgs(argv)
+	switch {
+	case errors.Is(err, errHelp):
+		usage(rt.Stdout())
 		return ExitSuccess
+	case err != nil:
+		fmt.Fprintln(rt.Stderr(), err)
+		usage(rt.Stderr())
+		return ExitValidationError
 	}
 
 	var in io.Reader
@@ -30,7 +30,7 @@ func run(argv []string, rt Runtime) ExitCode {
 	} else {
 		f, err := rt.Open(args.file)
 		if err != nil {
-			l.Println(err)
+			fmt.Fprintln(rt.Stderr(), err)
 			return ExitIOError
 		}
 		defer f.Close()
@@ -62,14 +62,14 @@ func run(argv []string, rt Runtime) ExitCode {
 	var wg sync.WaitGroup
 	for range numWorkers {
 		wg.Add(1)
-		go processLine(re, args, ctx, jobs, results, &wg, reportFatal, l)
+		go processLine(re, args, ctx, jobs, results, &wg, reportFatal, rt)
 	}
 
 	wg.Wait()
 
 	select {
 	case e := <-exitStatus:
-		l.Println(e.err)
+		fmt.Fprintln(rt.Stderr(), e.err)
 		return e.rc
 	default:
 	}
@@ -84,7 +84,7 @@ func run(argv []string, rt Runtime) ExitCode {
 	}
 
 	if err := writeOutput(rt, args.format, aggregate(merged), args.topRoutes); err != nil {
-		l.Println(err)
+		fmt.Fprintln(rt.Stderr(), err)
 		return ExitIOError
 	}
 
@@ -99,7 +99,7 @@ func processLine(
 	results chan<- stats,
 	wg *sync.WaitGroup,
 	reportFatal func(ExitCode, error),
-	l *log.Logger,
+	rt Runtime,
 ) {
 	defer wg.Done()
 	local := stats{statusCodes: make(map[int]int), routeDistribution: make(map[string]int)}
@@ -117,7 +117,7 @@ func processLine(
 		if err != nil {
 			if !args.strict {
 				local.error++
-				l.Println(err)
+				fmt.Fprintln(rt.Stderr(), err)
 				continue
 			}
 			reportFatal(ExitStrictError, err)
@@ -128,7 +128,7 @@ func processLine(
 		if err != nil {
 			if !args.strict {
 				local.error++
-				l.Println(err)
+				fmt.Fprintln(rt.Stderr(), err)
 				continue
 			}
 			reportFatal(ExitStrictError, err)

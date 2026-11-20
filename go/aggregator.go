@@ -35,9 +35,8 @@ func p95(d []float64) (p float64) {
 	delta := s[k+1] - s[k]
 	if math.IsInf(delta, 1) {
 		return (1-f)*s[k] + f*s[k+1]
-	} else {
-		return s[k] + f*delta
 	}
+	return s[k] + f*delta
 }
 
 func mean(d []float64) float64 {
