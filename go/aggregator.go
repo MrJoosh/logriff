@@ -12,15 +12,11 @@ func p95(d []float64) (p float64) {
 	if l == 0 {
 		return 0
 	}
-
 	if l == 1 {
 		return d[0]
 	}
 
-	s := slices.Clone(d)
-	slices.Sort(s)
-
-	if math.IsNaN(s[0]) {
+	if math.IsNaN(d[0]) {
 		return math.NaN()
 	}
 
@@ -28,15 +24,15 @@ func p95(d []float64) (p float64) {
 	k := int(r)
 	f := r - float64(k)
 
-	if f == 0 || s[k] == s[k+1] {
-		return s[k]
+	if f == 0 || d[k] == d[k+1] {
+		return d[k]
 	}
 
-	delta := s[k+1] - s[k]
+	delta := d[k+1] - d[k]
 	if math.IsInf(delta, 1) {
-		return (1-f)*s[k] + f*s[k+1]
+		return (1-f)*d[k] + f*d[k+1]
 	}
-	return s[k] + f*delta
+	return d[k] + f*delta
 }
 
 func mean(d []float64) float64 {
@@ -50,24 +46,18 @@ func mean(d []float64) float64 {
 	return s / float64(len(d))
 }
 
-func sliceMin(d []float64) float64 {
-	if len(d) == 0 {
-		return 0
-	}
-	return slices.Min(d)
-}
-
-func sliceMax(d []float64) float64 {
-	if len(d) == 0 {
-		return 0
-	}
-	return slices.Max(d)
-}
-
 func aggregate(s stats) output {
 	// Sort response times
 	rt := slices.Clone(s.responseTimes)
 	slices.Sort(rt)
+
+	lat := latency{}
+	if len(rt) > 0 {
+		lat.min = rt[0]
+		lat.mean = mean(rt)
+		lat.p95 = p95(rt)
+		lat.max = rt[len(rt)-1]
+	}
 
 	// Sort and format status codes
 	keys := make([]int, 0, len(s.statusCodes))
@@ -99,13 +89,8 @@ func aggregate(s stats) output {
 			matched: s.matched,
 			error:   s.error,
 		},
-		traffic: s.bytesVolume,
-		latency: latency{
-			min:  sliceMin(rt),
-			mean: mean(rt),
-			p95:  p95(rt),
-			max:  sliceMax(rt),
-		},
+		traffic:     s.bytesVolume,
+		latency:     lat,
 		statusCodes: statusCounts,
 		topRoutes:   routes,
 	}
