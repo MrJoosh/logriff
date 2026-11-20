@@ -42,25 +42,25 @@ func usage(w io.Writer) {
 
 func validateArgs(a args) error {
 	if a.statusMin != 0 && (a.statusMin < 100 || a.statusMin > 599) {
-		return fmt.Errorf("Invalid HTTP Status in status-min: %v", a.statusMin)
+		return fmt.Errorf("invalid status-min: %v", a.statusMin)
 	}
 	if a.statusMax != 0 && (a.statusMax < 100 || a.statusMax > 599) {
-		return fmt.Errorf("Invalid HTTP Status in status-max: %v", a.statusMax)
+		return fmt.Errorf("invalid status-max: %v", a.statusMax)
 	}
 	if a.statusMin != 0 && a.statusMax != 0 && a.statusMin > a.statusMax {
-		return fmt.Errorf("Filter for status-max cannot be greater than status-min: %v > %v", a.statusMin, a.statusMax)
+		return fmt.Errorf("filter for status-max cannot be greater than status-min: %v > %v", a.statusMin, a.statusMax)
 	}
 	if a.method != "" && !httpMethods[a.method] {
-		return fmt.Errorf("Invalid HTTP Method in method filter: %s", a.method)
+		return fmt.Errorf("invalid http method in method filter: %s", a.method)
 	}
 	if a.minDuration < 0 {
-		return fmt.Errorf("Filter for min-duration cannot be less than 0: %v", a.minDuration)
+		return fmt.Errorf("filter for min-duration cannot be less than 0: %v", a.minDuration)
 	}
 	if a.topRoutes < 0 {
-		return fmt.Errorf("Number of top-routes must be a positive non-zero integer: %v", a.topRoutes)
+		return fmt.Errorf("number of top-routes must be a positive non-zero integer: %v", a.topRoutes)
 	}
 	if a.format != "" && a.format != "text" && a.format != "json" {
-		return fmt.Errorf("Invalid output format: %s", a.format)
+		return fmt.Errorf("invalid output format: %s", a.format)
 	}
 	return nil
 }
