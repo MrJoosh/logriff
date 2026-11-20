@@ -17,7 +17,7 @@ func validator(f []string) (lineData, error) {
 	remoteAddr := f[iRemoteAddr]
 	timestamp := f[iTimestamp]
 	method := f[iMethod]
-	if !httpMethods[method] {
+	if _, ok := httpMethods[method]; !ok {
 		return lineData{}, fmt.Errorf("invalid method: %s", method)
 	}
 	path, _, _ := strings.Cut(f[iPath], "?")

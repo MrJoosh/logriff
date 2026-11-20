@@ -14,16 +14,16 @@ const (
 	ExitStrictError
 )
 
-var httpMethods = map[string]bool{
-	"CONNECT": true,
-	"DELETE":  true,
-	"GET":     true,
-	"HEAD":    true,
-	"OPTIONS": true,
-	"PATCH":   true,
-	"POST":    true,
-	"PUT":     true,
-	"TRACE":   true,
+var httpMethods = map[string]struct{}{
+	"CONNECT": {},
+	"DELETE":  {},
+	"GET":     {},
+	"HEAD":    {},
+	"OPTIONS": {},
+	"PATCH":   {},
+	"POST":    {},
+	"PUT":     {},
+	"TRACE":   {},
 }
 
 type args struct {

@@ -50,7 +50,7 @@ func validateArgs(a args) error {
 	if a.statusMin != 0 && a.statusMax != 0 && a.statusMin > a.statusMax {
 		return fmt.Errorf("filter for status-max cannot be greater than status-min: %v > %v", a.statusMin, a.statusMax)
 	}
-	if a.method != "" && !httpMethods[a.method] {
+	if _, ok := httpMethods[a.method]; a.method != "" && !ok {
 		return fmt.Errorf("invalid http method in method filter: %s", a.method)
 	}
 	if a.minDuration < 0 {
