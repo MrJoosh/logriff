@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-func Test_output_toJson(t *testing.T) {
+func Test_output_toJSON(t *testing.T) {
 	tests := []struct {
 		name string // description of this test case
 		// Named input parameters for receiver constructor.
@@ -71,9 +71,9 @@ func Test_output_toJson(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := aggregate(tt.s)
-			got := o.toJson(tt.numRoutes)
+			got := o.toJSON(tt.numRoutes)
 			if got != tt.want {
-				t.Errorf("toJson() = %v, want %v", got, tt.want)
+				t.Errorf("toJSON() = %v, want %v", got, tt.want)
 			}
 		})
 	}

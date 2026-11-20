@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (o output) toJson(n int) string {
+func (o output) toJSON(n int) string {
 	jsonTemplate := []string{
 		`{`,
 		`"summary": {`,
@@ -144,7 +144,7 @@ func comma(i int) string {
 func writeOutput(out StdoutProvider, format string, output output, numRoutes int) error {
 	switch format {
 	case "json":
-		_, err := fmt.Fprintln(out.Stdout(), output.toJson(numRoutes))
+		_, err := fmt.Fprintln(out.Stdout(), output.toJSON(numRoutes))
 		if err != nil {
 			return err
 		}
