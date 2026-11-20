@@ -39,13 +39,13 @@ func (o output) toJSON(n int) string {
 		b.WriteString(s)
 	}
 
-	sBuf := make([]string, 0)
+	sBuf := make([]string, 0, len(o.statusCodes))
 	for _, s := range o.statusCodes {
 		sBuf = append(sBuf, fmt.Sprintf(`"%v": %v`, s.status, s.count))
 	}
 	sc := strings.Join(sBuf, ",")
 
-	rBuf := make([]string, 0)
+	rBuf := make([]string, 0, min(n, len(o.topRoutes)))
 	for i, r := range o.topRoutes {
 		if i == n {
 			break
@@ -94,13 +94,13 @@ func (o output) toText(n int) string {
 		`========================`,
 	}
 
-	sBuf := make([]string, 0)
+	sBuf := make([]string, 0, len(o.statusCodes))
 	for _, s := range o.statusCodes {
 		sBuf = append(sBuf, fmt.Sprintf(`%v : %7s (%5.2f%%)`, s.status, comma(s.count), ((float64(s.count)/float64(o.summary.matched))*100.0)))
 	}
 	sc := strings.Join(sBuf, "\n")
 
-	rBuf := make([]string, 0)
+	rBuf := make([]string, 0, min(n, len(o.topRoutes)))
 	for i, r := range o.topRoutes {
 		if i == n {
 			break
