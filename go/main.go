@@ -32,14 +32,23 @@ func writeOutput(out StdoutProvider, format string, output output, numRoutes int
 	return nil
 }
 
-func processLine(re *regexp.Regexp, args args, ctx context.Context, jobs chan string, results chan<- result, wg *sync.WaitGroup, reportFatal func(ExitCode, error)) {
+func processLine(
+	re *regexp.Regexp,
+	args args,
+	ctx context.Context,
+	jobs <-chan string,
+	results chan<- stats,
+	wg *sync.WaitGroup,
+	reportFatal func(ExitCode, error),
+	l *log.Logger,
+) {
 	defer wg.Done()
 	local := stats{statusCodes: make(map[int]int), routeDistribution: make(map[string]int)}
 	for line := range jobs {
 		// Parse, Validate and statify line
 		select {
 		case <-ctx.Done():
-			results <- result{local, ctx.Err()}
+			results <- local
 			return
 		default:
 		}
@@ -49,20 +58,22 @@ func processLine(re *regexp.Regexp, args args, ctx context.Context, jobs chan st
 		if err != nil {
 			if !args.strict {
 				local.error++
+				l.Println(err)
 				continue
 			}
 			reportFatal(ExitStrictError, err)
-			results <- result{local, ctx.Err()}
+			results <- local
 			return
 		}
 		validated, err := validator(parsed)
 		if err != nil {
 			if !args.strict {
 				local.error++
+				l.Println(err)
 				continue
 			}
 			reportFatal(ExitStrictError, err)
-			results <- result{local, ctx.Err()}
+			results <- local
 			return
 		}
 		if !filter(validated, args) {
@@ -75,7 +86,7 @@ func processLine(re *regexp.Regexp, args args, ctx context.Context, jobs chan st
 		local.routeDistribution[validated.path]++
 	}
 
-	results <- result{local, nil}
+	results <- local
 }
 
 func run(argv []string, rt Runtime) ExitCode {
@@ -109,7 +120,7 @@ func run(argv []string, rt Runtime) ExitCode {
 	numWorkers := runtime.NumCPU()
 
 	jobs := make(chan string, 1024)
-	results := make(chan result, numWorkers)
+	results := make(chan stats, numWorkers)
 	exitStatus := make(chan exitInfo, 1)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -147,7 +158,7 @@ func run(argv []string, rt Runtime) ExitCode {
 	var wg sync.WaitGroup
 	for range numWorkers {
 		wg.Add(1)
-		go processLine(re, args, ctx, jobs, results, &wg, reportFatal)
+		go processLine(re, args, ctx, jobs, results, &wg, reportFatal, l)
 	}
 
 	wg.Wait()
@@ -167,16 +178,16 @@ func run(argv []string, rt Runtime) ExitCode {
 	for range numWorkers {
 		r := <-results
 
-		merged.lines += r.st.lines
-		merged.matched += r.st.matched
-		merged.error += r.st.error
-		merged.bytesVolume += r.st.bytesVolume
+		merged.lines += r.lines
+		merged.matched += r.matched
+		merged.error += r.error
+		merged.bytesVolume += r.bytesVolume
 
-		merged.responseTimes = append(merged.responseTimes, r.st.responseTimes...)
-		for code, count := range r.st.statusCodes {
+		merged.responseTimes = append(merged.responseTimes, r.responseTimes...)
+		for code, count := range r.statusCodes {
 			merged.statusCodes[code] += count
 		}
-		for route, count := range r.st.routeDistribution {
+		for route, count := range r.routeDistribution {
 			merged.routeDistribution[route] += count
 		}
 	}

@@ -123,11 +123,6 @@ func (osRuntime) Open(name string) (io.ReadCloser, error) {
 	return os.Open(name)
 }
 
-type result struct {
-	st  stats
-	err error
-}
-
 type exitInfo struct {
 	rc  ExitCode
 	err error
