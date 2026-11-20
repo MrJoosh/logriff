@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func validator(f []string) (lineData, error) {
+func validateFields(f []string) (lineData, error) {
 	if len(f) != fieldCount {
 		return lineData{}, fmt.Errorf("invalid field count: %d", len(f))
 	}

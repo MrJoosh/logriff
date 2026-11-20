@@ -121,7 +121,7 @@ func processLine(
 			results <- local
 			return
 		}
-		validated, err := validator(parsed)
+		validated, err := validateFields(parsed)
 		if err != nil {
 			if !args.strict {
 				local.error++
@@ -132,7 +132,7 @@ func processLine(
 			results <- local
 			return
 		}
-		if !filter(validated, args) {
+		if !match(validated, args) {
 			continue
 		}
 		local.matched++

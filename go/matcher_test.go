@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-func Test_filter(t *testing.T) {
+func Test_match(t *testing.T) {
 	tests := []struct {
 		name string // description of this test case
 		// Named input parameters for target function.
@@ -103,7 +103,7 @@ func Test_filter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := filter(tt.d, tt.f)
+			got := match(tt.d, tt.f)
 			if got != tt.want {
 				t.Errorf("filter() = %v, want %v", got, tt.want)
 			}
