@@ -129,16 +129,20 @@ func (o output) toText(n int) string {
 
 func comma(i int) string {
 	s := strconv.Itoa(i)
-	o := make([]string, 0)
-	for x := 0; x < len(s); x++ {
-		if x != 0 && x%3 == 0 {
-			c := []string{","}
-			o = append(c, o...)
-		}
-		n := []string{s[len(s)-x-1 : len(s)-x]}
-		o = append(n, o...)
+	if len(s) <= 3 {
+		return s
 	}
-	return strings.Join(o, "")
+	var b strings.Builder
+	pre := len(s) % 3
+	if pre == 0 {
+		pre = 3
+	}
+	b.WriteString(s[:pre])
+	for i := pre; i < len(s); i += 3 {
+		b.WriteByte(',')
+		b.WriteString(s[i : i+3])
+	}
+	return b.String()
 }
 
 func writeOutput(out StdoutProvider, format string, output output, numRoutes int) error {
