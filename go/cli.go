@@ -51,13 +51,13 @@ func validateArgs(a args) error {
 		return fmt.Errorf("filter for status-max cannot be greater than status-min: %v > %v", a.statusMin, a.statusMax)
 	}
 	if _, ok := httpMethods[a.method]; a.method != "" && !ok {
-		return fmt.Errorf("invalid http method in method filter: %s", a.method)
+		return fmt.Errorf("invalid http method: %s", a.method)
 	}
 	if a.minDuration < 0 {
 		return fmt.Errorf("filter for min-duration cannot be less than 0: %v", a.minDuration)
 	}
 	if a.topRoutes < 0 {
-		return fmt.Errorf("top-routes must >= 0: %v", a.topRoutes)
+		return fmt.Errorf("top-routes cannot be negative: %v", a.topRoutes)
 	}
 	if a.format != "" && a.format != "text" && a.format != "json" {
 		return fmt.Errorf("invalid output format: %s", a.format)
