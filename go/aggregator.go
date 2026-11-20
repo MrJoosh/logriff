@@ -76,12 +76,11 @@ func aggregate(s stats) output {
 		routes = append(routes, routeCount{path: path, count: count})
 	}
 	slices.SortFunc(routes, func(a, b routeCount) int {
-		if i := cmp.Compare(a.count, b.count); i != 0 {
+		if i := cmp.Compare(b.count, a.count); i != 0 {
 			return i
 		}
-		return strings.Compare(b.path, a.path)
+		return strings.Compare(a.path, b.path)
 	})
-	slices.Reverse(routes)
 
 	return output{
 		summary: summary{
