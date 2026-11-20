@@ -122,10 +122,9 @@ func Test_parseLine(t *testing.T) {
 			wantErr: false,
 		},
 	}
-	re := getParseRegex()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr := parseLine(tt.line, re)
+			got, gotErr := parseLine(tt.line)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("parseLine() failed: %v", gotErr)

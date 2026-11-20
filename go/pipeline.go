@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"regexp"
 	"runtime"
 	"strings"
 	"sync"
@@ -37,7 +36,6 @@ func run(argv []string, rt Runtime) ExitCode {
 		in = f
 	}
 
-	re := getParseRegex()
 	r := bufio.NewReader(in)
 
 	numWorkers := runtime.NumCPU()
@@ -62,7 +60,7 @@ func run(argv []string, rt Runtime) ExitCode {
 	var wg sync.WaitGroup
 	for range numWorkers {
 		wg.Add(1)
-		go processLine(re, args, ctx, jobs, results, &wg, reportFatal, rt)
+		go processLine(args, ctx, jobs, results, &wg, reportFatal, rt)
 	}
 
 	wg.Wait()
@@ -92,7 +90,6 @@ func run(argv []string, rt Runtime) ExitCode {
 }
 
 func processLine(
-	re *regexp.Regexp,
 	args args,
 	ctx context.Context,
 	jobs <-chan string,
@@ -112,7 +109,7 @@ func processLine(
 		default:
 		}
 
-		parsed, err := parseLine(line, re)
+		parsed, err := parseLine(line)
 		local.lines++
 		if err != nil {
 			if !args.strict {
