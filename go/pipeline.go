@@ -36,7 +36,7 @@ func run(argv []string, rt Runtime) ExitCode {
 		in = f
 	}
 
-	r := bufio.NewReader(in)
+	inReader := bufio.NewReader(in)
 
 	numWorkers := runtime.NumCPU()
 
@@ -55,7 +55,7 @@ func run(argv []string, rt Runtime) ExitCode {
 		}
 	}
 
-	go reader(r, jobs, ctx, reportFatal)
+	go reader(inReader, jobs, ctx, reportFatal)
 
 	var wg sync.WaitGroup
 	for range numWorkers {
