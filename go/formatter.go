@@ -97,7 +97,11 @@ func (o output) toText(n int) string {
 
 	sBuf := make([]string, 0, len(o.statusCodes))
 	for _, s := range o.statusCodes {
-		sBuf = append(sBuf, fmt.Sprintf(`%v : %7s (%5.2f%%)`, s.status, comma(s.count), ((float64(s.count)/float64(o.summary.matched))*100.0)))
+		pct := 0.0
+		if o.summary.matched != 0 {
+			pct = ((float64(s.count) / float64(o.summary.matched)) * 100.0)
+		}
+		sBuf = append(sBuf, fmt.Sprintf(`%v : %7s (%5.2f%%)`, s.status, comma(s.count), pct))
 	}
 	sc := strings.Join(sBuf, "\n")
 
