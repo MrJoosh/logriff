@@ -61,10 +61,21 @@ var lineRE = regexp.MustCompile(
 		`$`,
 )
 
-func parseLine(line string) ([]string, error) {
+func parseLine(line string) (lineFields, error) {
 	m := lineRE.FindStringSubmatch(line)
 	if m == nil || len(m)-1 != fieldCount {
-		return nil, fmt.Errorf("failed to parse input line: %s", line)
+		return lineFields{}, fmt.Errorf("failed to parse input line: %s", line)
 	}
-	return m[1:], nil
+	fields := m[1:]
+	return lineFields{
+		addr:      fields[iRemoteAddr],
+		timestamp: fields[iTimestamp],
+		method:    fields[iMethod],
+		path:      fields[iPath],
+		protocol:  fields[iProtocol],
+		status:    fields[iStatus],
+		bytes:     fields[iBytesSent],
+		response:  fields[iRespTime],
+		userAgent: fields[iUserAgent],
+	}, nil
 }

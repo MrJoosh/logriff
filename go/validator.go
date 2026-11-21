@@ -7,53 +7,46 @@ import (
 	"strings"
 )
 
-func validateFields(f []string) (lineData, error) {
-	if len(f) != fieldCount {
-		return lineData{}, fmt.Errorf("field count is invalid : %d", len(f))
+func validateFields(l lineFields) (lineData, error) {
+	if _, err := netip.ParseAddr(l.addr); err != nil {
+		return lineData{}, fmt.Errorf("invalid remote address: %s", l.addr)
 	}
-	if _, err := netip.ParseAddr(f[iRemoteAddr]); err != nil {
-		return lineData{}, fmt.Errorf("invalid remote address: %s", f[iRemoteAddr])
-	}
-	remoteAddr := f[iRemoteAddr]
-	timestamp := f[iTimestamp]
-	method := f[iMethod]
+	method := l.method
 	if _, ok := httpMethods[method]; !ok {
 		return lineData{}, fmt.Errorf("invalid method: %s", method)
 	}
-	path, _, _ := strings.Cut(f[iPath], "?")
-	protocol := f[iProtocol]
-	status, err := strconv.Atoi(f[iStatus])
+	path, _, _ := strings.Cut(l.path, "?")
+	status, err := strconv.Atoi(l.status)
 	if err != nil {
-		return lineData{}, fmt.Errorf("could not convert status to int: %s", f[iStatus])
+		return lineData{}, fmt.Errorf("could not convert status to int: %s", l.status)
 	}
 	if status < 100 || status > 599 {
 		return lineData{}, fmt.Errorf("invalid http status: %v", status)
 	}
-	bytesSent, err := strconv.Atoi(f[iBytesSent])
+	bytesSent, err := strconv.Atoi(l.bytes)
 	if err != nil {
-		return lineData{}, fmt.Errorf("could not convert bytes sent to int: %s", f[iBytesSent])
+		return lineData{}, fmt.Errorf("could not convert bytes sent to int: %s", l.bytes)
 	}
 	if bytesSent < 0 {
 		return lineData{}, fmt.Errorf("negative bytes sent is invalid: %v", bytesSent)
 	}
-	responseTimeMs, err := strconv.ParseFloat(f[iRespTime], 64)
+	responseTimeMs, err := strconv.ParseFloat(l.response, 64)
 	if err != nil {
-		return lineData{}, fmt.Errorf("could not convert response time to float: %s", f[iRespTime])
+		return lineData{}, fmt.Errorf("could not convert response time to float: %s", l.response)
 	}
 	if responseTimeMs < 0 {
 		return lineData{}, fmt.Errorf("negative response time is invalid: %v", responseTimeMs)
 	}
-	userAgent := f[iUserAgent]
 
 	return lineData{
-		remoteAddr:     remoteAddr,
-		timestamp:      timestamp,
+		remoteAddr:     l.addr,
+		timestamp:      l.timestamp,
 		method:         method,
 		path:           path,
-		protocol:       protocol,
+		protocol:       l.protocol,
 		status:         status,
 		bytesSent:      bytesSent,
 		responseTimeMs: responseTimeMs,
-		userAgent:      userAgent,
+		userAgent:      l.userAgent,
 	}, nil
 }

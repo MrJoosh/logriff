@@ -5,10 +5,6 @@ import (
 	"strconv"
 )
 
-type lineFields struct {
-	addr, timestamp, method, path, protocol, status, bytes, response, userAgent string
-}
-
 func genLog(f lineFields) string {
 	if f.addr == "" {
 		f.addr = "192.168.1.10"
@@ -43,7 +39,7 @@ func genLog(f lineFields) string {
 
 	return fmt.Sprintf("%s - - [%s] \"%s %s %s\" %s %s %s \"%s\"", f.addr, f.timestamp, f.method, f.path, f.protocol, f.status, f.bytes, f.response, f.userAgent)
 }
-func genFields(f lineFields) []string {
+func genFields(f lineFields) lineFields {
 	if f.addr == "" {
 		f.addr = "192.168.1.10"
 	}
@@ -72,7 +68,7 @@ func genFields(f lineFields) []string {
 		f.userAgent = "Go-http-client/1.1"
 	}
 
-	return []string{f.addr, f.timestamp, f.method, f.path, f.protocol, f.status, f.bytes, f.response, f.userAgent}
+	return f
 
 }
 

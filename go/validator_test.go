@@ -6,7 +6,7 @@ func Test_validateFields(t *testing.T) {
 	tests := []struct {
 		name string // description of this test case
 		// Named input parameters for target function.
-		f       []string
+		f       lineFields
 		want    lineData
 		wantErr bool
 	}{

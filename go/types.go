@@ -38,6 +38,10 @@ type args struct {
 	file        string
 }
 
+type lineFields struct {
+	addr, timestamp, method, path, protocol, status, bytes, response, userAgent string
+}
+
 type lineData struct {
 	remoteAddr     string
 	timestamp      string
