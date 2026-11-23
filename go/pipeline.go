@@ -81,7 +81,7 @@ func run(argv []string, rt Runtime) ExitCode {
 		merged.merge(<-results)
 	}
 
-	if err := writeOutput(rt, args.format, aggregate(merged), args.topRoutes); err != nil {
+	if err := writeOutput(rt, args.format, aggregate(merged), *args.topRoutes); err != nil {
 		fmt.Fprintln(rt.Stderr(), err)
 		return ExitIOError
 	}

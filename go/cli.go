@@ -41,22 +41,22 @@ func usage(w io.Writer) {
 }
 
 func validateArgs(a args) error {
-	if a.statusMin != 0 && (a.statusMin < 100 || a.statusMin > 599) {
+	if a.statusMin != nil && (*a.statusMin < 100 || *a.statusMin > 599) {
 		return fmt.Errorf("invalid status-min: %v", a.statusMin)
 	}
-	if a.statusMax != 0 && (a.statusMax < 100 || a.statusMax > 599) {
+	if a.statusMax != nil && (*a.statusMax < 100 || *a.statusMax > 599) {
 		return fmt.Errorf("invalid status-max: %v", a.statusMax)
 	}
-	if a.statusMin != 0 && a.statusMax != 0 && a.statusMin > a.statusMax {
+	if a.statusMin != nil && a.statusMax != nil && *a.statusMin > *a.statusMax {
 		return fmt.Errorf("filter for status-max cannot be greater than status-min: %v > %v", a.statusMin, a.statusMax)
 	}
 	if _, ok := httpMethods[a.method]; a.method != "" && !ok {
 		return fmt.Errorf("invalid http method: %s", a.method)
 	}
-	if a.minDuration < 0 {
+	if a.minDuration != nil && *a.minDuration < 0 {
 		return fmt.Errorf("filter for min-duration cannot be less than 0: %v", a.minDuration)
 	}
-	if a.topRoutes < 0 {
+	if a.topRoutes != nil && *a.topRoutes < 0 {
 		return fmt.Errorf("top-routes cannot be negative: %v", a.topRoutes)
 	}
 	if a.format != "" && a.format != "text" && a.format != "json" {
@@ -67,9 +67,7 @@ func validateArgs(a args) error {
 
 func parseArgs(argv []string) (args, error) {
 	var positional []string
-	out := args{
-		topRoutes: -1,
-	}
+	out := args{}
 
 	for i := 0; i < len(argv); i++ {
 		token := argv[i]
@@ -87,7 +85,7 @@ func parseArgs(argv []string) (args, error) {
 			if err != nil {
 				return args{}, fmt.Errorf("invalid %s: %q", name, v)
 			}
-			out.statusMin = n
+			out.statusMin = &n
 		case "-e", "--status-max":
 			v, err := optValue(argv, &i, name, val, hasEq)
 			if err != nil {
@@ -97,13 +95,14 @@ func parseArgs(argv []string) (args, error) {
 			if err != nil {
 				return args{}, fmt.Errorf("invalid %s: %q", name, v)
 			}
-			out.statusMax = n
+			out.statusMax = &n
 		case "-m", "--method":
 			v, err := optValue(argv, &i, name, val, hasEq)
 			if err != nil {
 				return args{}, err
 			}
-			out.method = strings.ToUpper(v)
+			method := strings.ToUpper(v)
+			out.method = method
 		case "-p", "--path-prefix":
 			v, err := optValue(argv, &i, name, val, hasEq)
 			if err != nil {
@@ -119,7 +118,7 @@ func parseArgs(argv []string) (args, error) {
 			if err != nil {
 				return args{}, fmt.Errorf("invalid %s: %q", name, v)
 			}
-			out.minDuration = n
+			out.minDuration = &n
 		case "-n", "--top-routes":
 			v, err := optValue(argv, &i, name, val, hasEq)
 			if err != nil {
@@ -129,7 +128,7 @@ func parseArgs(argv []string) (args, error) {
 			if err != nil {
 				return args{}, fmt.Errorf("invalid %s: %q", name, v)
 			}
-			out.topRoutes = n
+			out.topRoutes = &n
 		case "-f", "--format":
 			v, err := optValue(argv, &i, name, val, hasEq)
 			if err != nil {
@@ -160,16 +159,25 @@ func parseArgs(argv []string) (args, error) {
 		out.file = positional[0]
 	}
 
+	if err := validateArgs(out); err != nil {
+		return args{}, err
+	}
+
 	// Apply defaults
-	if out.topRoutes == -1 {
-		out.topRoutes = 5
+	if out.statusMin == nil {
+		out.statusMin = new(0)
+	}
+	if out.statusMax == nil {
+		out.statusMax = new(0)
+	}
+	if out.minDuration == nil {
+		out.minDuration = new(0.0)
+	}
+	if out.topRoutes == nil {
+		out.topRoutes = new(5)
 	}
 	if out.format == "" {
 		out.format = "text"
-	}
-
-	if err := validateArgs(out); err != nil {
-		return args{}, err
 	}
 
 	return out, nil

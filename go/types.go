@@ -30,12 +30,12 @@ var httpMethods = map[string]struct{}{
 }
 
 type args struct {
-	statusMin   int
-	statusMax   int
+	statusMin   *int
+	statusMax   *int
 	method      string
 	path        string
-	minDuration float64
-	topRoutes   int
+	minDuration *float64
+	topRoutes   *int
 	format      string
 	strict      bool
 	file        string

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 )
 
@@ -178,12 +179,12 @@ func Test_parseArgs(t *testing.T) {
 			name: "check option defaults",
 			argv: []string{},
 			want: args{
-				statusMin:   0,
-				statusMax:   0,
+				statusMin:   new(0),
+				statusMax:   new(0),
 				method:      "",
 				path:        "",
-				minDuration: 0,
-				topRoutes:   5,
+				minDuration: new(0.0),
+				topRoutes:   new(5),
 				format:      "text",
 				strict:      false,
 				file:        "-",
@@ -209,12 +210,12 @@ func Test_parseArgs(t *testing.T) {
 			name: "long form filters accepted",
 			argv: []string{"--status-min", "300", "--format", "json", "/foo/bar"},
 			want: args{
-				statusMin:   300,
-				statusMax:   0,
+				statusMin:   new(300),
+				statusMax:   new(0),
 				method:      "",
 				path:        "",
-				minDuration: 0,
-				topRoutes:   5,
+				minDuration: new(0.0),
+				topRoutes:   new(5),
 				format:      "json",
 				strict:      false,
 				file:        "/foo/bar",
@@ -226,12 +227,12 @@ func Test_parseArgs(t *testing.T) {
 			name: "method case insensitive",
 			argv: []string{"-m", "get"},
 			want: args{
-				statusMin:   0,
-				statusMax:   0,
+				statusMin:   new(0),
+				statusMax:   new(0),
 				method:      "GET",
 				path:        "",
-				minDuration: 0,
-				topRoutes:   5,
+				minDuration: new(0.0),
+				topRoutes:   new(5),
 				format:      "text",
 				strict:      false,
 				file:        "-",
@@ -243,12 +244,12 @@ func Test_parseArgs(t *testing.T) {
 			name: "long form equals type filters accepted",
 			argv: []string{"--status-min=300", "--format=json", "/foo/bar"},
 			want: args{
-				statusMin:   300,
-				statusMax:   0,
+				statusMin:   new(300),
+				statusMax:   new(0),
 				method:      "",
 				path:        "",
-				minDuration: 0,
-				topRoutes:   5,
+				minDuration: new(0.0),
+				topRoutes:   new(5),
 				format:      "json",
 				strict:      false,
 				file:        "/foo/bar",
@@ -281,8 +282,8 @@ func Test_parseArgs(t *testing.T) {
 			if tt.wantHelp {
 				t.Fatal("didn't get expected help flag")
 			}
-			if got != tt.want {
-				t.Errorf("parseArgs() = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("parseArgs() = %#v, want %#v", got, tt.want)
 			}
 		})
 	}
