@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -42,22 +43,25 @@ func usage(w io.Writer) {
 
 func validateArgs(a args) error {
 	if a.statusMin != nil && (*a.statusMin < 100 || *a.statusMin > 599) {
-		return fmt.Errorf("invalid status-min: %v", a.statusMin)
+		return fmt.Errorf("invalid status-min: %v", *a.statusMin)
 	}
 	if a.statusMax != nil && (*a.statusMax < 100 || *a.statusMax > 599) {
-		return fmt.Errorf("invalid status-max: %v", a.statusMax)
+		return fmt.Errorf("invalid status-max: %v", *a.statusMax)
 	}
 	if a.statusMin != nil && a.statusMax != nil && *a.statusMin > *a.statusMax {
-		return fmt.Errorf("filter for status-max cannot be greater than status-min: %v > %v", a.statusMin, a.statusMax)
+		return fmt.Errorf("filter for status-min cannot be greater than status-max: %v > %v", *a.statusMin, *a.statusMax)
 	}
 	if _, ok := httpMethods[a.method]; a.method != "" && !ok {
 		return fmt.Errorf("invalid http method: %s", a.method)
 	}
 	if a.minDuration != nil && *a.minDuration < 0 {
-		return fmt.Errorf("filter for min-duration cannot be less than 0: %v", a.minDuration)
+		return fmt.Errorf("filter for min-duration cannot be less than 0: %v", *a.minDuration)
+	}
+	if a.minDuration != nil && (math.IsNaN(*a.minDuration) || math.IsInf(*a.minDuration, 1)) {
+		return fmt.Errorf("invalid min-duration: %v", *a.minDuration)
 	}
 	if a.topRoutes != nil && *a.topRoutes < 0 {
-		return fmt.Errorf("top-routes cannot be negative: %v", a.topRoutes)
+		return fmt.Errorf("top-routes cannot be negative: %v", *a.topRoutes)
 	}
 	if a.format != "" && a.format != "text" && a.format != "json" {
 		return fmt.Errorf("invalid output format: %s", a.format)
