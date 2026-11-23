@@ -1,0 +1,45 @@
+# TypeScript implementation tasks.
+
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+# Show this module's recipes.
+[private]
+[default]
+help:
+    @just --list
+
+# Install the TypeScript toolchain and dependencies.
+sync:
+    if command -v npm >/dev/null 2>&1; then \
+        npm ci; \
+    else \
+        echo "Skipping TypeScript sync: npm not installed"; \
+    fi
+
+# Type-check the TypeScript sources.
+check:
+    if [ -x node_modules/.bin/tsc ]; then \
+        node_modules/.bin/tsc -p tsconfig.json --noEmit; \
+    else \
+        echo "Skipping TypeScript check: run 'just typescript sync' first"; \
+    fi
+
+# Compile TypeScript into dist/.
+build:
+    if [ ! -x node_modules/.bin/tsc ]; then \
+        echo "TypeScript toolchain missing; run 'just typescript sync' first" >&2; \
+        exit 1; \
+    fi
+    node_modules/.bin/tsc -p tsconfig.json
+
+# Run the compiled CLI with optional arguments.
+run *args: build
+    node dist/logriff.js {{args}}
+
+# Run the TypeScript tests.
+test:
+    echo "TODO: TypeScript tests are not yet implemented"
+
+# Remove build output and installed dependencies.
+clean:
+    rm -rf dist node_modules *.tsbuildinfo

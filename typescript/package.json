@@ -1,0 +1,20 @@
+{
+  "name": "logriff-typescript",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TypeScript implementation of the LogRiff CLI",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/logriff.js",
+    "test": "echo \"TODO: TypeScript tests are not yet implemented\""
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}

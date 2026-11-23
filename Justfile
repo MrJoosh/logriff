@@ -4,6 +4,9 @@
 
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
+# C implementation tasks.
+mod c 'c/Justfile'
+
 # C++ implementation tasks.
 mod cpp 'cpp/Justfile'
 
@@ -21,6 +24,9 @@ mod python 'python/Justfile'
 
 # Rust implementation tasks.
 mod rust 'rust/Justfile'
+
+# TypeScript implementation tasks.
+mod typescript 'typescript/Justfile'
 
 # ---------------------------------------------------------------------------
 # Housekeeping
@@ -40,7 +46,7 @@ help *args: title
 
 # Install/sync dependencies for every implementation.
 [group('housekeeping')]
-setup: python::sync go::sync rust::sync
+setup: python::sync go::sync rust::sync typescript::sync
 
 # Format all source code.
 [group('housekeeping')]
@@ -52,11 +58,11 @@ fmt-check: python::fmt-check go::fmt-check rust::fmt-check
 
 # Run all linters and static checks.
 [group('housekeeping')]
-lint: python::lint go::vet rust::lint lua::check
+lint: python::lint go::vet rust::lint lua::check c::check typescript::check
 
 # Run all available test suites.
 [group('housekeeping')]
-test: python::test data::test go::test rust::test
+test: python::test data::test go::test rust::test c::test typescript::test
 
 # Run linting and tests.
 [group('housekeeping')]
@@ -68,7 +74,7 @@ ci: check integration
 
 # Remove build artifacts, caches, and generated data.
 [group('housekeeping')]
-clean: python::clean go::clean rust::clean cpp::clean lua::clean data::clean
+clean: python::clean go::clean rust::clean cpp::clean lua::clean data::clean c::clean typescript::clean
 
 # Remove everything `clean` does, plus the Python virtualenv.
 [group('housekeeping')]

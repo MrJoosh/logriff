@@ -242,7 +242,7 @@ __marimo__/
 # Rust (target/ is covered above)
 **/*.rs.bk
 
-# C++ / CMake
+# C / C++ / CMake
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
@@ -252,6 +252,12 @@ compile_commands.json
 *.obj
 *.a
 *.out
+c/build/
+
+# TypeScript / Node
+typescript/node_modules/
+typescript/dist/
+*.tsbuildinfo
 
 # Lua
 luac.out

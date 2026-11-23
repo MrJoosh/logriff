@@ -1,6 +1,6 @@
 # LogRiff: Multi-Language CLI Log Filter & Aggregator
 
-A standardized, multi-language coding exercise designed to compare idioms, memory management, I/O throughput, and concurrency across **Python**, **Go**, **Rust**, **C++**, and **Lua**.
+A standardized, multi-language coding exercise designed to compare idioms, memory management, I/O throughput, and concurrency across **Python**, **Go**, **Rust**, **C++**, **Lua**, **TypeScript**, and **C**.
 
 ---
 
@@ -17,6 +17,8 @@ A standardized, multi-language coding exercise designed to compare idioms, memor
 | **Rust** | Zero-copy string slicing (`&str` vs `String`), explicit error handling (`Result`), ownership/borrowing, `clap`. |
 | **C++ (C++20)** | Streaming I/O optimizations, `std::string_view`, RAII, standard algorithms, value semantics. |
 | **Lua (5.4 / LuaJIT)** | Native pattern matching (no POSIX regex), table-based maps, streaming via `io.lines`, CLI argument parsing without external libraries. |
+| **TypeScript** | Static typing on Node.js, stream-based I/O, `package.json`/`tsconfig.json` tooling, tests with the Node test runner. |
+| **C** | Manual memory management, explicit allocation/free, `stdio`-based streaming, C11 toolchain and warning flags, no language runtime. |
 
 ---
 
@@ -188,8 +190,8 @@ Max             : 1412.30 ms
 * **Latency Percentile Strategy:**
   * Exact calculation via sorting an in-memory array of latencies is acceptable for smaller sets ($< 5\text{M}$ records).
   * *Stretch goal / Advanced:* Implement an online percentile approximation (e.g., T-Digest, P-Square algorithm, or fixed bucket histograms) to maintain strict $O(1)$ auxiliary space.
-* **Zero Allocations (C++ & Rust):**
-  * Avoid allocating a new heap `String` per field on every line. Use views/slices referencing the per-line read buffer.
+* **Zero Allocations (C, C++ & Rust):**
+  * Avoid allocating a new heap `String` per field on every line. Use views/slices referencing the per-line read buffer (or stack/`char *` views in C).
 
 ---
 
@@ -220,9 +222,23 @@ Max             : 1412.30 ms
 │   └── src/main.cpp
 ├── lua/
 │   └── logriff.lua
+├── typescript/
+│   ├── Justfile           # npm/tsc tasks
+│   ├── package.json       # Node/TypeScript project metadata
+│   ├── package-lock.json  # Pinned npm dependencies
+│   ├── tsconfig.json      # Strict TypeScript compiler settings
+│   ├── README.md          # Implementation notes
+│   └── src/logriff.ts     # CLI entry point
+├── c/
+│   ├── Justfile           # cc/CMake tasks
+│   ├── CMakeLists.txt     # C11 build configuration
+│   ├── README.md          # Implementation notes
+│   └── src/main.c         # CLI entry point
 └── tests/
     └── integration_test.sh # Cross-language output verification
 ```
+
+Every implementation directory has its own `Justfile`, exposed through the root `Justfile` (for example, `just typescript check` and `just c build`).
 
 ---
 
@@ -242,6 +258,8 @@ Max             : 1412.30 ms
    ./rust/target/release/logriff --format json data/test_1m.log > rust_out.json
    diff <(jq -S . go_out.json) <(jq -S . rust_out.json)
    ```
+
+   Build each implementation (`just typescript build`, `just c build`) and include its `--format json` output in the same differential check.
 
 3. **Throughput Benchmark:**
    Benchmark line ingestion speed and resident memory:

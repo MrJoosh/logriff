@@ -1,0 +1,35 @@
+# C implementation tasks.
+
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+# Show this module's recipes.
+[private]
+[default]
+help:
+    @just --list
+
+# Build the C implementation with CMake, falling back to the compiler.
+build:
+    mkdir -p build
+    if command -v cmake >/dev/null 2>&1; then \
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release; \
+        cmake --build build; \
+    else \
+        echo "cmake not found; compiling directly with ${CC:-cc}"; \
+        "${CC:-cc}" -std=c11 -Wall -Wextra -Wpedantic src/main.c -o build/logriff; \
+    fi
+
+# Compile-check the C implementation.
+check: build
+
+# Run the C implementation with optional arguments.
+run *args: build
+    ./build/logriff {{args}}
+
+# Run the C tests.
+test:
+    echo "TODO: C tests are not yet implemented"
+
+# Remove C build artifacts.
+clean:
+    rm -rf build
