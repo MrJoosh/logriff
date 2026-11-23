@@ -53,10 +53,10 @@ func aggregate(s stats) output {
 
 	lat := latency{}
 	if len(rt) > 0 {
-		lat.min = rt[0]
-		lat.mean = mean(rt)
-		lat.p95 = p95(rt)
-		lat.max = rt[len(rt)-1]
+		lat.Min = latValue(rt[0])
+		lat.Mean = latValue(mean(rt))
+		lat.P95 = latValue(p95(rt))
+		lat.Max = latValue(rt[len(rt)-1])
 	}
 
 	// Sort and format status codes
@@ -67,31 +67,31 @@ func aggregate(s stats) output {
 	slices.Sort(keys)
 	statusCounts := make([]statusCount, 0, len(keys))
 	for _, k := range keys {
-		statusCounts = append(statusCounts, statusCount{status: k, count: s.statusCodes[k]})
+		statusCounts = append(statusCounts, statusCount{Status: k, Count: s.statusCodes[k]})
 	}
 
 	// Sort and format routes
 	routes := make([]routeCount, 0, len(s.routeDistribution))
 	for path, count := range s.routeDistribution {
-		routes = append(routes, routeCount{path: path, count: count})
+		routes = append(routes, routeCount{Path: path, Count: count})
 	}
 	slices.SortFunc(routes, func(a, b routeCount) int {
-		if i := cmp.Compare(b.count, a.count); i != 0 {
+		if i := cmp.Compare(b.Count, a.Count); i != 0 {
 			return i
 		}
-		return strings.Compare(a.path, b.path)
+		return strings.Compare(a.Path, b.Path)
 	})
 
 	return output{
-		summary: summary{
-			total:   s.lines,
-			matched: s.matched,
-			error:   s.error,
+		Summary: summary{
+			Total:   s.lines,
+			Matched: s.matched,
+			Error:   s.error,
 		},
-		traffic:     s.bytesVolume,
-		latency:     lat,
-		statusCodes: statusCounts,
-		topRoutes:   routes,
+		Traffic:     traffic{TotalBytes: s.bytesVolume},
+		Latency:     lat,
+		StatusCodes: statusCounts,
+		TopRoutes:   routes,
 	}
 }
 

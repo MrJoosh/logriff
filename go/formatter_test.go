@@ -34,13 +34,13 @@ func Test_output_toJSON(t *testing.T) {
 				},
 			},
 			numRoutes: 5,
-			want:      `{"summary": {"total_lines": 5,"matched_lines": 5,"error_lines": 0},"traffic": {"total_bytes": 9330},"latency_ms": {"min": 0.80,"mean": 62.56,"p95": 185.56,"max": 210.60},"status_codes": {"200": 2,"304": 1,"401": 1,"500": 1},"top_routes": [{"path": "/api/v1/auth/login", "count": 1},{"path": "/api/v1/health", "count": 1},{"path": "/api/v1/items/4912", "count": 1},{"path": "/api/v1/sessions/current", "count": 1},{"path": "/assets/main.css", "count": 1}]}`,
+			want:      `{"summary":{"total_lines":5,"matched_lines":5,"error_lines":0},"traffic":{"total_bytes":9330},"latency_ms":{"min":0.80,"mean":62.56,"p95":185.56,"max":210.60},"status_codes":{"200":2,"304":1,"401":1,"500":1},"top_routes":[{"path":"/api/v1/auth/login","count":1},{"path":"/api/v1/health","count":1},{"path":"/api/v1/items/4912","count":1},{"path":"/api/v1/sessions/current","count":1},{"path":"/assets/main.css","count":1}]}`,
 		},
 		{
 			name:      "empty stats",
 			s:         stats{},
 			numRoutes: 5,
-			want:      `{"summary": {"total_lines": 0,"matched_lines": 0,"error_lines": 0},"traffic": {"total_bytes": 0},"latency_ms": {"min": 0.00,"mean": 0.00,"p95": 0.00,"max": 0.00},"status_codes": {},"top_routes": []}`,
+			want:      `{"summary":{"total_lines":0,"matched_lines":0,"error_lines":0},"traffic":{"total_bytes":0},"latency_ms":{"min":0.00,"mean":0.00,"p95":0.00,"max":0.00},"status_codes":{},"top_routes":[]}`,
 		},
 		{
 			name: "num routes limit",
@@ -65,13 +65,16 @@ func Test_output_toJSON(t *testing.T) {
 				},
 			},
 			numRoutes: 3,
-			want:      `{"summary": {"total_lines": 5,"matched_lines": 5,"error_lines": 0},"traffic": {"total_bytes": 9330},"latency_ms": {"min": 0.80,"mean": 62.56,"p95": 185.56,"max": 210.60},"status_codes": {"200": 2,"304": 1,"401": 1,"500": 1},"top_routes": [{"path": "/api/v1/auth/login", "count": 1},{"path": "/api/v1/health", "count": 1},{"path": "/api/v1/items/4912", "count": 1}]}`,
+			want:      `{"summary":{"total_lines":5,"matched_lines":5,"error_lines":0},"traffic":{"total_bytes":9330},"latency_ms":{"min":0.80,"mean":62.56,"p95":185.56,"max":210.60},"status_codes":{"200":2,"304":1,"401":1,"500":1},"top_routes":[{"path":"/api/v1/auth/login","count":1},{"path":"/api/v1/health","count":1},{"path":"/api/v1/items/4912","count":1}]}`,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := aggregate(tt.s)
-			got := o.toJSON(tt.numRoutes)
+			got, gotErr := o.toJSON(tt.numRoutes)
+			if gotErr != nil {
+				t.Fatalf("toJSON() failed: %v", gotErr)
+			}
 			if got != tt.want {
 				t.Errorf("toJSON() = %v, want %v", got, tt.want)
 			}

@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
 	"os"
+	"strconv"
 )
 
 type ExitCode int
@@ -65,34 +68,74 @@ type stats struct {
 }
 
 type output struct {
-	summary     summary
-	traffic     int
-	latency     latency
-	statusCodes []statusCount
-	topRoutes   []routeCount
+	Summary     summary      `json:"summary"`
+	Traffic     traffic      `json:"traffic"`
+	Latency     latency      `json:"latency_ms"`
+	StatusCodes statusStats  `json:"status_codes"`
+	TopRoutes   []routeCount `json:"top_routes"`
+}
+
+type traffic struct {
+	TotalBytes int `json:"total_bytes"`
 }
 
 type summary struct {
-	total   int
-	matched int
-	error   int
+	Total   int `json:"total_lines"`
+	Matched int `json:"matched_lines"`
+	Error   int `json:"error_lines"`
+}
+
+type latValue float64
+
+func (l latValue) MarshalJSON() ([]byte, error) {
+	s := strconv.FormatFloat(float64(l), 'f', 2, 64)
+	return []byte(s), nil
 }
 
 type latency struct {
-	min  float64
-	mean float64
-	p95  float64
-	max  float64
+	Min  latValue `json:"min"`
+	Mean latValue `json:"mean"`
+	P95  latValue `json:"p95"`
+	Max  latValue `json:"max"`
 }
 
 type routeCount struct {
-	path  string
-	count int
+	Path  string `json:"path"`
+	Count int    `json:"count"`
+}
+
+type statusStats []statusCount
+
+func (s statusStats) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	buf.WriteByte('{')
+
+	for i, status := range s {
+		if i > 0 {
+			buf.WriteByte(',')
+		}
+
+		key, err := json.Marshal(strconv.Itoa(status.Status))
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(key)
+		buf.WriteByte(':')
+
+		val, err := json.Marshal(status.Count)
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(val)
+	}
+
+	buf.WriteByte('}')
+	return buf.Bytes(), nil
 }
 
 type statusCount struct {
-	status int
-	count  int
+	Status int
+	Count  int
 }
 
 type FileOpener interface {
