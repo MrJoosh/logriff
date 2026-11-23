@@ -134,6 +134,34 @@ func Test_parseArgsInvalid(t *testing.T) {
 			wantErr:  true,
 			wantHelp: false,
 		},
+		{
+			name:     "min duration nan",
+			argv:     []string{"--min-duration", "NaN"},
+			want:     args{},
+			wantErr:  true,
+			wantHelp: false,
+		},
+		{
+			name:     "min duration infinity",
+			argv:     []string{"--min-duration", "+Inf"},
+			want:     args{},
+			wantErr:  true,
+			wantHelp: false,
+		},
+		{
+			name:     "status min 0",
+			argv:     []string{"-s", "0"},
+			want:     args{},
+			wantErr:  true,
+			wantHelp: false,
+		},
+		{
+			name:     "status min out of range",
+			argv:     []string{"-s", "600"},
+			want:     args{},
+			wantErr:  true,
+			wantHelp: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
