@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-func Test_filter(t *testing.T) {
+func Test_match(t *testing.T) {
 	tests := []struct {
 		name string // description of this test case
 		// Named input parameters for target function.
@@ -13,25 +13,25 @@ func Test_filter(t *testing.T) {
 		{
 			name: "status min",
 			d:    genLineData(lineFields{}),
-			f:    args{statusMin: 200},
+			f:    args{statusMin: new(200)},
 			want: true,
 		},
 		{
 			name: "status min false",
 			d:    genLineData(lineFields{}),
-			f:    args{statusMin: 201},
+			f:    args{statusMin: new(201)},
 			want: false,
 		},
 		{
 			name: "status max true",
 			d:    genLineData(lineFields{}),
-			f:    args{statusMax: 201},
+			f:    args{statusMax: new(201)},
 			want: true,
 		},
 		{
 			name: "status max false",
 			d:    genLineData(lineFields{}),
-			f:    args{statusMax: 199},
+			f:    args{statusMax: new(199)},
 			want: false,
 		},
 		{
@@ -67,24 +67,24 @@ func Test_filter(t *testing.T) {
 		{
 			name: "duration true",
 			d:    genLineData(lineFields{}),
-			f:    args{minDuration: 1.2},
+			f:    args{minDuration: new(1.2)},
 			want: true,
 		},
 		{
 			name: "duration false",
 			d:    genLineData(lineFields{}),
-			f:    args{minDuration: 1.3},
+			f:    args{minDuration: new(1.3)},
 			want: false,
 		},
 		{
 			name: "multi filter true",
 			d:    genLineData(lineFields{}),
 			f: args{
-				statusMin:   200,
-				statusMax:   200,
+				statusMin:   new(200),
+				statusMax:   new(200),
 				method:      "GET",
 				path:        "/api",
-				minDuration: 1.2,
+				minDuration: new(1.2),
 			},
 			want: true,
 		},
@@ -92,18 +92,18 @@ func Test_filter(t *testing.T) {
 			name: "multi filter false",
 			d:    genLineData(lineFields{}),
 			f: args{
-				statusMin:   201,
-				statusMax:   200,
+				statusMin:   new(201),
+				statusMax:   new(200),
 				method:      "POST",
 				path:        "/assets",
-				minDuration: 2.0,
+				minDuration: new(2.0),
 			},
 			want: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := filter(tt.d, tt.f)
+			got := match(tt.d, tt.f)
 			if got != tt.want {
 				t.Errorf("filter() = %v, want %v", got, tt.want)
 			}

@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"errors"
+	"reflect"
+	"testing"
+)
 
 func Test_parseArgsInvalid(t *testing.T) {
 	tests := []struct {
@@ -130,11 +134,48 @@ func Test_parseArgsInvalid(t *testing.T) {
 			wantErr:  true,
 			wantHelp: false,
 		},
+		{
+			name:     "min duration nan",
+			argv:     []string{"--min-duration", "NaN"},
+			want:     args{},
+			wantErr:  true,
+			wantHelp: false,
+		},
+		{
+			name:     "min duration infinity",
+			argv:     []string{"--min-duration", "+Inf"},
+			want:     args{},
+			wantErr:  true,
+			wantHelp: false,
+		},
+		{
+			name:     "status min 0",
+			argv:     []string{"-s", "0"},
+			want:     args{},
+			wantErr:  true,
+			wantHelp: false,
+		},
+		{
+			name:     "status min out of range",
+			argv:     []string{"-s", "600"},
+			want:     args{},
+			wantErr:  true,
+			wantHelp: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr, gotHelp := parseArgs(tt.argv)
+			got, gotErr := parseArgs(tt.argv)
 			if gotErr != nil {
+				if errors.Is(gotErr, errHelp) {
+					if !tt.wantHelp {
+						t.Fatal("got help unexpectedly")
+					}
+					return
+				}
+				if tt.wantHelp {
+					t.Fatalf("parseArgs() error = %v, want help", gotErr)
+				}
 				if !tt.wantErr {
 					t.Errorf("parseArgs() failed: %v", gotErr)
 				}
@@ -143,10 +184,7 @@ func Test_parseArgsInvalid(t *testing.T) {
 			if tt.wantErr {
 				t.Fatal("parseArgs() succeeded unexpectedly")
 			}
-			if gotHelp && !tt.wantHelp {
-				t.Fatal("unexpectedly got help flag")
-			}
-			if !gotHelp && tt.wantHelp {
+			if tt.wantHelp {
 				t.Fatal("didn't get expected help flag")
 			}
 			if got != tt.want {
@@ -169,12 +207,12 @@ func Test_parseArgs(t *testing.T) {
 			name: "check option defaults",
 			argv: []string{},
 			want: args{
-				statusMin:   0,
-				statusMax:   0,
+				statusMin:   new(0),
+				statusMax:   new(0),
 				method:      "",
 				path:        "",
-				minDuration: 0,
-				topRoutes:   5,
+				minDuration: new(0.0),
+				topRoutes:   new(5),
 				format:      "text",
 				strict:      false,
 				file:        "-",
@@ -197,22 +235,15 @@ func Test_parseArgs(t *testing.T) {
 			wantHelp: true,
 		},
 		{
-			name:     "help returns success long flag",
-			argv:     []string{"--help"},
-			want:     args{},
-			wantErr:  false,
-			wantHelp: true,
-		},
-		{
 			name: "long form filters accepted",
 			argv: []string{"--status-min", "300", "--format", "json", "/foo/bar"},
 			want: args{
-				statusMin:   300,
-				statusMax:   0,
+				statusMin:   new(300),
+				statusMax:   new(0),
 				method:      "",
 				path:        "",
-				minDuration: 0,
-				topRoutes:   5,
+				minDuration: new(0.0),
+				topRoutes:   new(5),
 				format:      "json",
 				strict:      false,
 				file:        "/foo/bar",
@@ -224,12 +255,12 @@ func Test_parseArgs(t *testing.T) {
 			name: "method case insensitive",
 			argv: []string{"-m", "get"},
 			want: args{
-				statusMin:   0,
-				statusMax:   0,
+				statusMin:   new(0),
+				statusMax:   new(0),
 				method:      "GET",
 				path:        "",
-				minDuration: 0,
-				topRoutes:   5,
+				minDuration: new(0.0),
+				topRoutes:   new(5),
 				format:      "text",
 				strict:      false,
 				file:        "-",
@@ -241,12 +272,12 @@ func Test_parseArgs(t *testing.T) {
 			name: "long form equals type filters accepted",
 			argv: []string{"--status-min=300", "--format=json", "/foo/bar"},
 			want: args{
-				statusMin:   300,
-				statusMax:   0,
+				statusMin:   new(300),
+				statusMax:   new(0),
 				method:      "",
 				path:        "",
-				minDuration: 0,
-				topRoutes:   5,
+				minDuration: new(0.0),
+				topRoutes:   new(5),
 				format:      "json",
 				strict:      false,
 				file:        "/foo/bar",
@@ -257,8 +288,17 @@ func Test_parseArgs(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr, gotHelp := parseArgs(tt.argv)
+			got, gotErr := parseArgs(tt.argv)
 			if gotErr != nil {
+				if errors.Is(gotErr, errHelp) {
+					if !tt.wantHelp {
+						t.Fatal("got help unexpectedly")
+					}
+					return
+				}
+				if tt.wantHelp {
+					t.Fatalf("parseArgs() error = %v, want help", gotErr)
+				}
 				if !tt.wantErr {
 					t.Errorf("parseArgs() failed: %v", gotErr)
 				}
@@ -267,14 +307,11 @@ func Test_parseArgs(t *testing.T) {
 			if tt.wantErr {
 				t.Fatal("parseArgs() succeeded unexpectedly")
 			}
-			if gotHelp && !tt.wantHelp {
-				t.Fatal("unexpectedly got help flag")
-			}
-			if !gotHelp && tt.wantHelp {
+			if tt.wantHelp {
 				t.Fatal("didn't get expected help flag")
 			}
-			if got != tt.want {
-				t.Errorf("parseArgs() = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("parseArgs() = %#v, want %#v", got, tt.want)
 			}
 		})
 	}

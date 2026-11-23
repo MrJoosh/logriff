@@ -7,51 +7,46 @@ import (
 	"strings"
 )
 
-func validator(f []string) (lineData, error) {
-	_, err := netip.ParseAddr(f[0])
-	if err != nil {
-		return lineData{}, fmt.Errorf("invalid remote address: %s", f[0])
+func validateFields(l lineFields) (lineData, error) {
+	if _, err := netip.ParseAddr(l.addr); err != nil {
+		return lineData{}, fmt.Errorf("invalid remote address: %s", l.addr)
 	}
-	remoteAddr := f[0]
-	timestamp := f[1]
-	method := f[2]
-	if !httpMethods[method] {
-		return lineData{}, fmt.Errorf("invalid method: %s", f[2])
+	method := l.method
+	if _, ok := httpMethods[method]; !ok {
+		return lineData{}, fmt.Errorf("invalid method: %s", method)
 	}
-	path, _, _ := strings.Cut(f[3], "?")
-	protocol := f[4]
-	status, err := strconv.Atoi(f[5])
+	path, _, _ := strings.Cut(l.path, "?")
+	status, err := strconv.Atoi(l.status)
 	if err != nil {
-		return lineData{}, fmt.Errorf("could not convert status to int: %s", f[5])
+		return lineData{}, fmt.Errorf("could not convert status to int: %s", l.status)
 	}
 	if status < 100 || status > 599 {
 		return lineData{}, fmt.Errorf("invalid http status: %v", status)
 	}
-	bytesSent, err := strconv.Atoi(f[6])
+	bytesSent, err := strconv.Atoi(l.bytes)
 	if err != nil {
-		return lineData{}, fmt.Errorf("could not convert bytes sent to int: %s", f[6])
+		return lineData{}, fmt.Errorf("could not convert bytes sent to int: %s", l.bytes)
 	}
 	if bytesSent < 0 {
-		return lineData{}, fmt.Errorf("bytes sent shouldn't be negative: %v", bytesSent)
+		return lineData{}, fmt.Errorf("negative bytes sent is invalid: %v", bytesSent)
 	}
-	responseTimeMs, err := strconv.ParseFloat(f[7], 64)
+	responseTimeMs, err := strconv.ParseFloat(l.response, 64)
 	if err != nil {
-		return lineData{}, fmt.Errorf("could not convert response time to float: %s", f[7])
+		return lineData{}, fmt.Errorf("could not convert response time to float: %s", l.response)
 	}
 	if responseTimeMs < 0 {
-		return lineData{}, fmt.Errorf("response time should not be negative: %v", responseTimeMs)
+		return lineData{}, fmt.Errorf("negative response time is invalid: %v", responseTimeMs)
 	}
-	userAgent := f[8]
 
 	return lineData{
-		remoteAddr:     remoteAddr,
-		timestamp:      timestamp,
+		remoteAddr:     l.addr,
+		timestamp:      l.timestamp,
 		method:         method,
 		path:           path,
-		protocol:       protocol,
+		protocol:       l.protocol,
 		status:         status,
 		bytesSent:      bytesSent,
 		responseTimeMs: responseTimeMs,
-		userAgent:      userAgent,
+		userAgent:      l.userAgent,
 	}, nil
 }

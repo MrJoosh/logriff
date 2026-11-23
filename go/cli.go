@@ -1,167 +1,199 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io"
+	"math"
 	"strconv"
 	"strings"
 )
 
-func usage() {
-	fmt.Println("usage: logriff [-h] [-s STATUS_MIN] [-e STATUS_MAX] [-m {CONNECT,DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT,TRACE}] [-p PATH_PREFIX] [--min-duration MIN_DURATION] [-n TOP_ROUTES] [-f {text,json}] [--strict] [file]")
-	fmt.Println("")
-	fmt.Println("Filter and aggregate logs.")
-	fmt.Println("")
-	fmt.Println("positional arguments:")
-	fmt.Println("  file                  input file, or - for stdin")
-	fmt.Println("")
-	fmt.Println("options:")
-	fmt.Println("  -h, --help            show this help message and exit")
-	fmt.Println("  -s, --status-min STATUS_MIN")
-	fmt.Println("                        keep records with status >= MIN")
-	fmt.Println("  -e, --status-max STATUS_MAX")
-	fmt.Println("                        keep records with status <= MAX")
-	fmt.Println("  -m, --method {CONNECT,DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT,TRACE}")
-	fmt.Println("                        filter by HTTP verb (case-insensitive)")
-	fmt.Println("  -p, --path-prefix PATH_PREFIX")
-	fmt.Println("                        keep paths starting with this prefix")
-	fmt.Println("  --min-duration MIN_DURATION")
-	fmt.Println("                        keep records with response_time_ms >= duration")
-	fmt.Println("  -n, --top-routes TOP_ROUTES")
-	fmt.Println("                        number of top routes to show")
-	fmt.Println("  -f, --format {text,json}")
-	fmt.Println("                        output format")
-	fmt.Println("  --strict              exit non-zero on malformed lines")
+var errHelp = errors.New("help requested")
+
+const usageText = `usage: logriff [-h] [-s STATUS_MIN] [-e STATUS_MAX] [-m {CONNECT,DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT,TRACE}] [-p PATH_PREFIX] [--min-duration MIN_DURATION] [-n TOP_ROUTES] [-f {text,json}] [--strict] [file]
+
+Filter and aggregate logs.
+
+positional arguments:
+  file                  input file, or - for stdin
+
+options:
+  -h, --help            show this help message and exit
+  -s, --status-min STATUS_MIN
+                        keep records with status >= MIN
+  -e, --status-max STATUS_MAX
+                        keep records with status <= MAX
+  -m, --method {CONNECT,DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT,TRACE}
+                        filter by HTTP verb (case-insensitive)
+  -p, --path-prefix PATH_PREFIX
+                        keep paths starting with this prefix
+  --min-duration MIN_DURATION
+                        keep records with response_time_ms >= duration
+  -n, --top-routes TOP_ROUTES
+                        number of top routes to show
+  -f, --format {text,json}
+                        output format
+  --strict              exit non-zero on malformed lines
+`
+
+func usage(w io.Writer) {
+	fmt.Fprint(w, usageText)
 }
 
-func validateArgs(a args) (args, error) {
-	if a.statusMin != 0 && (a.statusMin < 100 || a.statusMin > 599) {
-		return a, fmt.Errorf("Invalid HTTP Status in status-min: %v", a.statusMin)
+func validateArgs(a args) error {
+	if a.statusMin != nil && (*a.statusMin < 100 || *a.statusMin > 599) {
+		return fmt.Errorf("invalid status-min: %v", *a.statusMin)
 	}
-	if a.statusMax != 0 && (a.statusMax < 100 || a.statusMax > 599) {
-		return a, fmt.Errorf("Invalid HTTP Status in status-max: %v", a.statusMax)
+	if a.statusMax != nil && (*a.statusMax < 100 || *a.statusMax > 599) {
+		return fmt.Errorf("invalid status-max: %v", *a.statusMax)
 	}
-	if a.statusMin != 0 && a.statusMax != 0 && a.statusMin > a.statusMax {
-		return a, fmt.Errorf("Filter for status-max cannot be greater than status-min: %v > %v", a.statusMin, a.statusMax)
+	if a.statusMin != nil && a.statusMax != nil && *a.statusMin > *a.statusMax {
+		return fmt.Errorf("filter for status-min cannot be greater than status-max: %v > %v", *a.statusMin, *a.statusMax)
 	}
-	if a.method != "" && !httpMethods[a.method] {
-		return a, fmt.Errorf("Invalid HTTP Method in method filter: %s", a.method)
+	if _, ok := httpMethods[a.method]; a.method != "" && !ok {
+		return fmt.Errorf("invalid http method: %s", a.method)
 	}
-	if a.minDuration < 0 {
-		return a, fmt.Errorf("Filter for min-duration cannot be less than 0: %v", a.minDuration)
+	if a.minDuration != nil && *a.minDuration < 0 {
+		return fmt.Errorf("filter for min-duration cannot be less than 0: %v", *a.minDuration)
 	}
-	if a.topRoutes < 0 {
-		return a, fmt.Errorf("Number of top-routes must be a positive non-zero integer: %v", a.topRoutes)
+	if a.minDuration != nil && (math.IsNaN(*a.minDuration) || math.IsInf(*a.minDuration, 1)) {
+		return fmt.Errorf("invalid min-duration: %v", *a.minDuration)
+	}
+	if a.topRoutes != nil && *a.topRoutes < 0 {
+		return fmt.Errorf("top-routes cannot be negative: %v", *a.topRoutes)
 	}
 	if a.format != "" && a.format != "text" && a.format != "json" {
-		return a, fmt.Errorf("Invalid output format: %s", a.format)
+		return fmt.Errorf("invalid output format: %s", a.format)
 	}
-	return a, nil
+	return nil
 }
 
-func parseArgs(argv []string) (args, error, bool) {
+func parseArgs(argv []string) (args, error) {
 	var positional []string
-	out := args{
-		topRoutes: -1,
-	}
+	out := args{}
 
 	for i := 0; i < len(argv); i++ {
-		switch argv[i] {
+		token := argv[i]
+		name, val, hasEq := strings.Cut(token, "=")
+
+		switch name {
 		case "-h", "--help":
-			return args{}, nil, true
+			return args{}, errHelp
 		case "-s", "--status-min":
-			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
-			}
-			i++
-			v, err := strconv.Atoi(argv[i])
+			v, err := optValue(argv, &i, name, val, hasEq)
 			if err != nil {
-				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i]), false
+				return args{}, err
 			}
-			out.statusMin = v
+			n, err := strconv.Atoi(v)
+			if err != nil {
+				return args{}, fmt.Errorf("invalid %s: %q", name, v)
+			}
+			out.statusMin = &n
 		case "-e", "--status-max":
-			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
-			}
-			i++
-			v, err := strconv.Atoi(argv[i])
+			v, err := optValue(argv, &i, name, val, hasEq)
 			if err != nil {
-				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i]), false
+				return args{}, err
 			}
-			out.statusMax = v
+			n, err := strconv.Atoi(v)
+			if err != nil {
+				return args{}, fmt.Errorf("invalid %s: %q", name, v)
+			}
+			out.statusMax = &n
 		case "-m", "--method":
-			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
+			v, err := optValue(argv, &i, name, val, hasEq)
+			if err != nil {
+				return args{}, err
 			}
-			i++
-			out.method = strings.ToUpper(argv[i])
+			method := strings.ToUpper(v)
+			out.method = method
 		case "-p", "--path-prefix":
-			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
+			v, err := optValue(argv, &i, name, val, hasEq)
+			if err != nil {
+				return args{}, err
 			}
-			i++
-			out.path = argv[i]
+			out.path = v
 		case "--min-duration":
-			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
-			}
-			i++
-			v, err := strconv.ParseFloat(argv[i], 64)
+			v, err := optValue(argv, &i, name, val, hasEq)
 			if err != nil {
-				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i]), false
+				return args{}, err
 			}
-			out.minDuration = v
+			n, err := strconv.ParseFloat(v, 64)
+			if err != nil {
+				return args{}, fmt.Errorf("invalid %s: %q", name, v)
+			}
+			out.minDuration = &n
 		case "-n", "--top-routes":
-			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
-			}
-			i++
-			v, err := strconv.Atoi(argv[i])
+			v, err := optValue(argv, &i, name, val, hasEq)
 			if err != nil {
-				return args{}, fmt.Errorf("invalid %s: %q", argv[i-1], argv[i]), false
+				return args{}, err
 			}
-			out.topRoutes = v
+			n, err := strconv.Atoi(v)
+			if err != nil {
+				return args{}, fmt.Errorf("invalid %s: %q", name, v)
+			}
+			out.topRoutes = &n
 		case "-f", "--format":
-			if i+1 >= len(argv) {
-				return args{}, fmt.Errorf("%s requires a value", argv[i]), false
+			v, err := optValue(argv, &i, name, val, hasEq)
+			if err != nil {
+				return args{}, err
 			}
-			i++
-			out.format = argv[i]
+			out.format = v
 		case "--strict":
-			out.strict = true
-		case "-", "":
-			positional = append(positional, argv[i])
-		default:
-			if strings.HasPrefix(argv[i], "-") {
-				if strings.Contains(argv[i], "=") {
-					argv = append(argv, strings.SplitN(argv[i], "=", 2)...)
-					continue
-				}
-				return args{}, fmt.Errorf("unknown option: %s", argv[i]), false
+			if hasEq {
+				return args{}, fmt.Errorf("%s does not take a value", name)
 			}
-			positional = append(positional, argv[i])
+			out.strict = true
+		case "-":
+			positional = append(positional, name)
+		default:
+			if strings.HasPrefix(token, "-") {
+				return args{}, fmt.Errorf("unknown option: %s", name)
+			}
+			positional = append(positional, token)
 		}
 	}
 
 	if len(positional) > 1 {
-		return args{}, fmt.Errorf("unexpected arguments: %v", positional[1:]), false
-	} else if len(positional) == 0 {
+		return args{}, fmt.Errorf("unexpected arguments: %v", positional[1:])
+	}
+	if len(positional) == 0 {
 		out.file = "-"
 	} else {
 		out.file = positional[0]
 	}
 
+	if err := validateArgs(out); err != nil {
+		return args{}, err
+	}
+
 	// Apply defaults
-	if out.topRoutes == -1 {
-		out.topRoutes = 5
+	if out.statusMin == nil {
+		out.statusMin = new(0)
+	}
+	if out.statusMax == nil {
+		out.statusMax = new(0)
+	}
+	if out.minDuration == nil {
+		out.minDuration = new(0.0)
+	}
+	if out.topRoutes == nil {
+		out.topRoutes = new(5)
 	}
 	if out.format == "" {
 		out.format = "text"
 	}
 
-	out, err := validateArgs(out)
-	if err != nil {
-		return out, err, false
-	}
+	return out, nil
+}
 
-	return out, nil, false
+func optValue(argv []string, i *int, name, val string, hasEq bool) (string, error) {
+	if hasEq {
+		return val, nil
+	}
+	if *i+1 >= len(argv) {
+		return "", fmt.Errorf("%s requires a value", name)
+	}
+	*i++
+	return argv[*i], nil
 }

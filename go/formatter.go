@@ -1,73 +1,23 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 )
 
-func (o output) toJson(n int) string {
-	jsonTemplate := []string{
-		`{`,
-		`"summary": {`,
-		`"total_lines": %v,`,
-		`"matched_lines": %v,`,
-		`"error_lines": %v`,
-		`},`,
-		`"traffic": {`,
-		`"total_bytes": %v`,
-		`},`,
-		`"latency_ms": {`,
-		`"min": %.2f,`,
-		`"mean": %.2f,`,
-		`"p95": %.2f,`,
-		`"max": %.2f`,
-		`},`,
-		`"status_codes": {`,
-		`%s`,
-		`},`,
-		`"top_routes": [`,
-		`%s`,
-		`]`,
-		`}`,
+const bytesPerGiB = 1 << 30
+
+func (o output) toJSON(n int) (string, error) {
+	if len(o.TopRoutes) > n {
+		o.TopRoutes = o.TopRoutes[:n]
 	}
-
-	var b strings.Builder
-
-	for _, s := range jsonTemplate {
-		b.WriteString(s)
+	s, err := json.Marshal(o)
+	if err != nil {
+		return "", err
 	}
-
-	sBuf := make([]string, 0)
-	for _, s := range o.statusCodes {
-		sBuf = append(sBuf, fmt.Sprintf(`"%v": %v`, s.status, s.count))
-	}
-	sc := strings.Join(sBuf, ",")
-
-	rBuf := make([]string, 0)
-	for i, r := range o.topRoutes {
-		if i == n {
-			break
-		}
-		rBuf = append(rBuf, fmt.Sprintf(`{"path": "%s", "count": %v}`, r.path, r.count))
-	}
-
-	tr := strings.Join(rBuf, ",")
-
-	return fmt.Sprintf(
-		b.String(),
-		o.summary.total,
-		o.summary.matched,
-		o.summary.error,
-		o.traffic,
-		o.latency.min,
-		o.latency.mean,
-		o.latency.p95,
-		o.latency.max,
-		sc,
-		tr,
-	)
+	return string(s), nil
 }
 
 func (o output) toText(n int) string {
@@ -94,33 +44,37 @@ func (o output) toText(n int) string {
 		`========================`,
 	}
 
-	sBuf := make([]string, 0)
-	for _, s := range o.statusCodes {
-		sBuf = append(sBuf, fmt.Sprintf(`%v : %7s (%5.2f%%)`, s.status, comma(s.count), ((float64(s.count)/float64(o.summary.matched))*100.0)))
+	sBuf := make([]string, 0, len(o.StatusCodes))
+	for _, s := range o.StatusCodes {
+		pct := 0.0
+		if o.Summary.Matched != 0 {
+			pct = ((float64(s.Count) / float64(o.Summary.Matched)) * 100.0)
+		}
+		sBuf = append(sBuf, fmt.Sprintf(`%v : %7s (%5.2f%%)`, s.Status, comma(s.Count), pct))
 	}
 	sc := strings.Join(sBuf, "\n")
 
-	rBuf := make([]string, 0)
-	for i, r := range o.topRoutes {
+	rBuf := make([]string, 0, min(n, len(o.TopRoutes)))
+	for i, r := range o.TopRoutes {
 		if i == n {
 			break
 		}
-		rBuf = append(rBuf, fmt.Sprintf(`%v. %-33s : %s`, i+1, r.path, comma(r.count)))
+		rBuf = append(rBuf, fmt.Sprintf(`%v. %-33s : %s`, i+1, r.Path, comma(r.Count)))
 	}
 
 	tr := strings.Join(rBuf, "\n")
 
 	return fmt.Sprintf(
 		strings.Join(textTemplate, "\n"),
-		comma(o.summary.total),
-		comma(o.summary.matched),
-		comma(o.summary.error),
-		float64(o.traffic)/math.Pow(2, 30),
-		comma(o.traffic),
-		o.latency.min,
-		o.latency.mean,
-		o.latency.p95,
-		o.latency.max,
+		comma(o.Summary.Total),
+		comma(o.Summary.Matched),
+		comma(o.Summary.Error),
+		float64(o.Traffic.TotalBytes)/bytesPerGiB,
+		comma(o.Traffic.TotalBytes),
+		o.Latency.Min,
+		o.Latency.Mean,
+		o.Latency.P95,
+		o.Latency.Max,
 		sc,
 		n,
 		tr,
@@ -129,14 +83,38 @@ func (o output) toText(n int) string {
 
 func comma(i int) string {
 	s := strconv.Itoa(i)
-	o := make([]string, 0)
-	for x := 0; x < len(s); x++ {
-		if x != 0 && x%3 == 0 {
-			c := []string{","}
-			o = append(c, o...)
-		}
-		n := []string{s[len(s)-x-1 : len(s)-x]}
-		o = append(n, o...)
+	if len(s) <= 3 {
+		return s
 	}
-	return strings.Join(o, "")
+	var b strings.Builder
+	pre := len(s) % 3
+	if pre == 0 {
+		pre = 3
+	}
+	b.WriteString(s[:pre])
+	for i := pre; i < len(s); i += 3 {
+		b.WriteByte(',')
+		b.WriteString(s[i : i+3])
+	}
+	return b.String()
+}
+
+func writeOutput(out StdoutProvider, format string, output output, numRoutes int) error {
+	switch format {
+	case "json":
+		o, err := output.toJSON(numRoutes)
+		if err != nil {
+			return err
+		}
+		_, err = fmt.Fprintln(out.Stdout(), o)
+		if err != nil {
+			return err
+		}
+	case "text":
+		_, err := fmt.Fprintln(out.Stdout(), output.toText(numRoutes))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

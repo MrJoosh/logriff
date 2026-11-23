@@ -33,27 +33,27 @@ func Test_aggregate(t *testing.T) {
 				},
 			},
 			want: output{
-				summary: summary{
-					total:   5,
-					matched: 5,
-					error:   0,
+				Summary: summary{
+					Total:   5,
+					Matched: 5,
+					Error:   0,
 				},
-				traffic: 250,
-				latency: latency{
-					min:  1.2,
-					mean: 1.4,
-					p95:  1.58,
-					max:  1.6,
+				Traffic: traffic{TotalBytes: 250},
+				Latency: latency{
+					Min:  1.2,
+					Mean: 1.4,
+					P95:  1.58,
+					Max:  1.6,
 				},
-				statusCodes: []statusCount{
-					{status: 200, count: 3},
-					{status: 401, count: 1},
-					{status: 500, count: 1},
+				StatusCodes: []statusCount{
+					{Status: 200, Count: 3},
+					{Status: 401, Count: 1},
+					{Status: 500, Count: 1},
 				},
-				topRoutes: []routeCount{
-					{path: "/api/health", count: 3},
-					{path: "/assets/foo.css", count: 1},
-					{path: "/index.html", count: 1},
+				TopRoutes: []routeCount{
+					{Path: "/api/health", Count: 3},
+					{Path: "/assets/foo.css", Count: 1},
+					{Path: "/index.html", Count: 1},
 				},
 			},
 		},
@@ -61,20 +61,20 @@ func Test_aggregate(t *testing.T) {
 			name: "empty input",
 			s:    stats{},
 			want: output{
-				summary: summary{
-					total:   0,
-					matched: 0,
-					error:   0,
+				Summary: summary{
+					Total:   0,
+					Matched: 0,
+					Error:   0,
 				},
-				traffic: 0,
-				latency: latency{
-					min:  0,
-					mean: 0,
-					p95:  0,
-					max:  0,
+				Traffic: traffic{TotalBytes: 0},
+				Latency: latency{
+					Min:  0,
+					Mean: 0,
+					P95:  0,
+					Max:  0,
 				},
-				statusCodes: []statusCount{},
-				topRoutes:   []routeCount{},
+				StatusCodes: []statusCount{},
+				TopRoutes:   []routeCount{},
 			},
 		},
 		{
@@ -97,27 +97,27 @@ func Test_aggregate(t *testing.T) {
 				},
 			},
 			want: output{
-				summary: summary{
-					total:   5,
-					matched: 5,
-					error:   0,
+				Summary: summary{
+					Total:   5,
+					Matched: 5,
+					Error:   0,
 				},
-				traffic: 250,
-				latency: latency{
-					min:  1.2,
-					mean: 1.4,
-					p95:  1.58,
-					max:  1.6,
+				Traffic: traffic{TotalBytes: 250},
+				Latency: latency{
+					Min:  1.2,
+					Mean: 1.4,
+					P95:  1.58,
+					Max:  1.6,
 				},
-				statusCodes: []statusCount{
-					{status: 200, count: 3},
-					{status: 401, count: 1},
-					{status: 500, count: 1},
+				StatusCodes: []statusCount{
+					{Status: 200, Count: 3},
+					{Status: 401, Count: 1},
+					{Status: 500, Count: 1},
 				},
-				topRoutes: []routeCount{
-					{path: "/api/health", count: 3},
-					{path: "/assets/foo.css", count: 1},
-					{path: "/index.html", count: 1},
+				TopRoutes: []routeCount{
+					{Path: "/api/health", Count: 3},
+					{Path: "/assets/foo.css", Count: 1},
+					{Path: "/index.html", Count: 1},
 				},
 			},
 		},
@@ -141,27 +141,27 @@ func Test_aggregate(t *testing.T) {
 				},
 			},
 			want: output{
-				summary: summary{
-					total:   5,
-					matched: 5,
-					error:   0,
+				Summary: summary{
+					Total:   5,
+					Matched: 5,
+					Error:   0,
 				},
-				traffic: 250,
-				latency: latency{
-					min:  1.2,
-					mean: 1.4,
-					p95:  1.58,
-					max:  1.6,
+				Traffic: traffic{TotalBytes: 250},
+				Latency: latency{
+					Min:  1.2,
+					Mean: 1.4,
+					P95:  1.58,
+					Max:  1.6,
 				},
-				statusCodes: []statusCount{
-					{status: 200, count: 3},
-					{status: 401, count: 1},
-					{status: 500, count: 1},
+				StatusCodes: []statusCount{
+					{Status: 200, Count: 3},
+					{Status: 401, Count: 1},
+					{Status: 500, Count: 1},
 				},
-				topRoutes: []routeCount{
-					{path: "/api/health", count: 3},
-					{path: "/assets/foo.css", count: 1},
-					{path: "/index.html", count: 1},
+				TopRoutes: []routeCount{
+					{Path: "/api/health", Count: 3},
+					{Path: "/assets/foo.css", Count: 1},
+					{Path: "/index.html", Count: 1},
 				},
 			},
 		},
