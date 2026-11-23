@@ -2,7 +2,7 @@
   "name": "logriff-typescript",
   "version": "0.0.0",
   "private": true,
-  "description": "TypeScript implementation scaffold for LogRiff",
+  "description": "TypeScript implementation of the LogRiff CLI",
   "type": "module",
   "engines": {
     "node": ">=20"

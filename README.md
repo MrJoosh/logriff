@@ -2,8 +2,6 @@
 
 A standardized, multi-language coding exercise designed to compare idioms, memory management, I/O throughput, and concurrency across **Python**, **Go**, **Rust**, **C++**, **Lua**, **TypeScript**, and **C**.
 
-TypeScript and C are scaffolded but not yet implemented: their directories contain build tooling, placeholder entry points, and notes, ready for the real CLI ports.
-
 ---
 
 ## 1. Project Overview
@@ -19,8 +17,8 @@ TypeScript and C are scaffolded but not yet implemented: their directories conta
 | **Rust** | Zero-copy string slicing (`&str` vs `String`), explicit error handling (`Result`), ownership/borrowing, `clap`. |
 | **C++ (C++20)** | Streaming I/O optimizations, `std::string_view`, RAII, standard algorithms, value semantics. |
 | **Lua (5.4 / LuaJIT)** | Native pattern matching (no POSIX regex), table-based maps, streaming via `io.lines`, CLI argument parsing without external libraries. |
-| **TypeScript (planned)** | Static typing on Node.js, stream-based I/O, `package.json`/`tsconfig.json` tooling, tests with the Node test runner. |
-| **C (planned)** | Manual memory management, explicit allocation/free, `stdio`-based streaming, C11 toolchain and warning flags, no language runtime. |
+| **TypeScript** | Static typing on Node.js, stream-based I/O, `package.json`/`tsconfig.json` tooling, tests with the Node test runner. |
+| **C** | Manual memory management, explicit allocation/free, `stdio`-based streaming, C11 toolchain and warning flags, no language runtime. |
 
 ---
 
@@ -229,13 +227,13 @@ Max             : 1412.30 ms
 │   ├── package.json       # Node/TypeScript project metadata
 │   ├── package-lock.json  # Pinned npm dependencies
 │   ├── tsconfig.json      # Strict TypeScript compiler settings
-│   ├── README.md          # Scaffold status and implementation notes
-│   └── src/logriff.ts     # Placeholder CLI entry point
+│   ├── README.md          # Implementation notes
+│   └── src/logriff.ts     # CLI entry point
 ├── c/
 │   ├── Justfile           # cc/CMake tasks
 │   ├── CMakeLists.txt     # C11 build configuration
-│   ├── README.md          # Scaffold status and implementation notes
-│   └── src/main.c         # Placeholder CLI entry point
+│   ├── README.md          # Implementation notes
+│   └── src/main.c         # CLI entry point
 └── tests/
     └── integration_test.sh # Cross-language output verification
 ```
@@ -261,7 +259,7 @@ Every implementation directory has its own `Justfile`, exposed through the root 
    diff <(jq -S . go_out.json) <(jq -S . rust_out.json)
    ```
 
-   Once the TypeScript and C ports are implemented, build them (`just typescript build`, `just c build`) and include their `--format json` output in the same differential check.
+   Build each implementation (`just typescript build`, `just c build`) and include its `--format json` output in the same differential check.
 
 3. **Throughput Benchmark:**
    Benchmark line ingestion speed and resident memory:

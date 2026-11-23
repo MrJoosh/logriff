@@ -1,4 +1,4 @@
-# C implementation tasks (scaffold only).
+# C implementation tasks.
 
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
@@ -26,7 +26,7 @@ check: build
 run *args: build
     ./build/logriff {{args}}
 
-# Run the C tests once they exist.
+# Run the C tests.
 test:
     echo "TODO: C tests are not yet implemented"
 

@@ -1,4 +1,4 @@
-# TypeScript implementation tasks (scaffold only).
+# TypeScript implementation tasks.
 
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
@@ -36,7 +36,7 @@ build:
 run *args: build
     node dist/logriff.js {{args}}
 
-# Run the TypeScript tests once they exist.
+# Run the TypeScript tests.
 test:
     echo "TODO: TypeScript tests are not yet implemented"
 
