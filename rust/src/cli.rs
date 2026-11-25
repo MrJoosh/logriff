@@ -16,7 +16,7 @@ pub fn validate_args(args: &Args) -> Result<(), String> {
 fn parse_http_status(s: &str) -> Result<u16, String> {
     let n: u16 = s.parse().map_err(|_| format!("invalid status: {s}"))?;
     if !(100..=599).contains(&n) {
-        return Err("invalid status: {s}".to_string());
+        return Err(format!("invalid status: {s}"));
     }
     Ok(n)
 }
@@ -26,10 +26,10 @@ fn parse_min_duration(s: &str) -> Result<f32, String> {
         .parse()
         .map_err(|_| format!("invalid min-duration: {s}"))?;
     if n < 0.0 {
-        return Err("min-duration cannot be negative: {s}".to_string());
+        return Err(format!("min-duration cannot be negative: {s}"));
     }
     if !n.is_finite() {
-        return Err("min-duration must be a finite number: {s}".to_string());
+        return Err(format!("min-duration must be a finite number: {s}"));
     }
     Ok(n)
 }
@@ -79,7 +79,7 @@ pub struct Args {
     #[arg(
         short = 'n',
         long = "top-routes",
-        help = "Number of most requested routes to show in sumamry.",
+        help = "Number of most requested routes to show in summary.",
         default_value_t = 5
     )]
     top_routes: u16,
@@ -207,7 +207,7 @@ mod cli_tests {
 
     #[test]
     fn negative_top_routes() {
-        let err = Args::try_parse_from(["logriff", "-n", "'-1'"]).unwrap_err();
+        let err = Args::try_parse_from(["logriff", "-n=-1"]).unwrap_err();
         assert_eq!(err.kind(), clap::error::ErrorKind::ValueValidation)
     }
 
@@ -237,7 +237,7 @@ mod cli_tests {
 
     #[test]
     fn negative_min_duration() {
-        let err = Args::try_parse_from(["logriff", "--min-duration", "'-1.1'"]).unwrap_err();
+        let err = Args::try_parse_from(["logriff", "--min-duration=-1.1"]).unwrap_err();
         assert_eq!(err.kind(), clap::error::ErrorKind::ValueValidation)
     }
 
