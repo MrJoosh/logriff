@@ -1,4 +1,4 @@
-use crate::types::{Format, HTTPVerb};
+use crate::types::{Format, HttpVerb};
 use clap::Parser;
 
 pub fn validate_args(args: &Args) -> Result<(), String> {
@@ -60,7 +60,7 @@ pub struct Args {
         ignore_case = true,
         help = "Filter by HTTP verb (case-insensitive)."
     )]
-    method: Option<HTTPVerb>,
+    method: Option<HttpVerb>,
 
     #[arg(
         short,
@@ -89,7 +89,7 @@ pub struct Args {
         long,
         value_enum,
         help = "Output format for aggregate results.",
-        default_value_t = Format::TEXT,
+        default_value_t = Format::Text,
     )]
     format: Format,
 
@@ -106,7 +106,7 @@ pub struct Args {
 
 #[cfg(test)]
 mod cli_tests {
-    use super::{Args, Format, HTTPVerb};
+    use super::{Args, Format, HttpVerb};
     use clap::{CommandFactory, Parser};
 
     #[test]
@@ -137,11 +137,11 @@ mod cli_tests {
         .unwrap();
         assert_eq!(args.status_min, Some(100));
         assert_eq!(args.status_max, Some(599));
-        assert_eq!(args.method, Some(HTTPVerb::GET));
+        assert_eq!(args.method, Some(HttpVerb::Get));
         assert_eq!(args.path_prefix, Some("/foo/bar".to_string()));
         assert_eq!(args.min_duration, Some(0.1));
         assert_eq!(args.top_routes, 3);
-        assert_eq!(args.format, Format::JSON);
+        assert_eq!(args.format, Format::Json);
         assert_eq!(args.file, "foo.log".to_string());
     }
 
@@ -226,7 +226,7 @@ mod cli_tests {
     #[test]
     fn method_case_insensitive() {
         let args = Args::try_parse_from(["logriff", "-m", "GET"]).unwrap();
-        assert_eq!(args.method, Some(HTTPVerb::GET))
+        assert_eq!(args.method, Some(HttpVerb::Get))
     }
 
     #[test]
