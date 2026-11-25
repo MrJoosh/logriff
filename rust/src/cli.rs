@@ -15,7 +15,7 @@ pub fn validate_args(args: &Args) -> Result<(), String> {
 
 fn parse_http_status(s: &str) -> Result<u16, String> {
     let n: u16 = s.parse().map_err(|_| format!("invalid status: {s}"))?;
-    if n < 100 || n > 599 {
+    if !(100..=599).contains(&n) {
         return Err("invalid status: {s}".to_string());
     }
     Ok(n)
@@ -268,7 +268,7 @@ mod cli_tests {
     #[test]
     fn strict_flag_handling() {
         let args = Args::try_parse_from(["logriff", "--strict"]).unwrap();
-        assert_eq!(args.strict, true)
+        assert!(args.strict)
     }
 
     #[test]
