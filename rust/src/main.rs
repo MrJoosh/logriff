@@ -13,7 +13,7 @@ fn main() -> ExitCode {
                 return ExitCode::SUCCESS;
             }
             _ => {
-                eprintln!("{:?}: {}", err.kind(), err);
+                eprintln!("{}", err);
                 return ExitCode::FAILURE;
             }
         },
