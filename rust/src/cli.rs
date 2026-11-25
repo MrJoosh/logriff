@@ -95,12 +95,11 @@ pub struct Args {
 
     #[arg(
         long,
-        help = "Terminate immediately with non-zero exit code on malformed lines.",
-        default_value_t = false
+        help = "Terminate immediately with non-zero exit code on malformed lines."
     )]
     strict: bool,
 
-    #[arg(default_value_t = "-".to_string(), help = "Log file to process or - for stdin.")]
+    #[arg(default_value = "-", help = "Log file to process or - for stdin.")]
     file: String,
 }
 
