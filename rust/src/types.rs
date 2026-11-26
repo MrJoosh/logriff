@@ -119,7 +119,7 @@ impl Stats {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Output {
     pub summary: Summary,
     pub traffic: Traffic,
@@ -128,19 +128,19 @@ pub struct Output {
     pub top_routes: Vec<RouteCount>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Summary {
     pub total_lines: usize,
     pub matched_lines: usize,
     pub error_lines: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Traffic {
     pub total_bytes: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Latency {
     pub min: f32,
     pub mean: f32,
@@ -148,7 +148,7 @@ pub struct Latency {
     pub max: f32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct RouteCount {
     pub path: String,
     pub count: usize,

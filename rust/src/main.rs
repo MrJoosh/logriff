@@ -46,10 +46,7 @@ fn main() -> ExitCode {
         },
     };
 
-    let output: Output = match aggregate(&stats) {
-        Ok(output) => output,
-        Err(err) => panic!("{}", err),
-    };
+    let output: Output = aggregate(&stats);
     println!("{:?}", output);
 
     ExitCode::SUCCESS
