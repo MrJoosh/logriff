@@ -89,7 +89,7 @@ pub fn validate_line(l: &RawParsedLine) -> Result<ParsedLine, String> {
     };
 
     // Validate status
-    let status: u16 = l
+    let status = l
         .status
         .parse()
         .map_err(|_| format!("invalid status: {}", l.status))?;
@@ -101,7 +101,7 @@ pub fn validate_line(l: &RawParsedLine) -> Result<ParsedLine, String> {
     // Validate bytes sent
     let bytes_sent = l
         .bytes_sent
-        .parse::<u64>()
+        .parse::<usize>()
         .map_err(|_| format!("invalid bytes sent: {}", l.bytes_sent))?;
 
     // Validate response time

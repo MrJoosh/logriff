@@ -51,8 +51,8 @@ pub struct ParsedLine {
     pub method: HttpVerb,
     pub path: String,
     pub protocol: String,
-    pub status: u16,
-    pub bytes_sent: u64,
+    pub status: usize,
+    pub bytes_sent: usize,
     pub response_time_ms: f32,
     pub user_agent: String,
 }
@@ -107,10 +107,10 @@ pub struct Stats {
     pub lines: usize,
     pub matched: usize,
     pub error: usize,
-    pub bytes_volume: u64,
+    pub bytes_volume: usize,
     pub response_times: Vec<f32>,
-    pub status_codes: HashMap<u16, u16>,
-    pub route_distribution: HashMap<String, u32>,
+    pub status_codes: HashMap<usize, usize>,
+    pub route_distribution: HashMap<String, usize>,
 }
 
 impl Stats {
@@ -137,7 +137,7 @@ pub struct Summary {
 
 #[derive(Debug)]
 pub struct Traffic {
-    pub total_bytes: u64,
+    pub total_bytes: usize,
 }
 
 #[derive(Debug)]

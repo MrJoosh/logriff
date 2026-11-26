@@ -24,7 +24,7 @@ pub fn aggregate(stats: &Stats) -> Result<Output, String> {
     let status_codes: BTreeMap<String, usize> = stats
         .status_codes
         .iter()
-        .map(|(k, v)| (k.to_string(), usize::from(*v)))
+        .map(|(k, v)| (k.to_string(), *v))
         .collect();
 
     let mut top_routes: Vec<RouteCount> = stats
@@ -32,7 +32,7 @@ pub fn aggregate(stats: &Stats) -> Result<Output, String> {
         .iter()
         .map(|(p, &c)| RouteCount {
             path: p.into(),
-            count: c as usize,
+            count: c,
         })
         .collect();
     top_routes.sort_unstable_by(|a, b| {

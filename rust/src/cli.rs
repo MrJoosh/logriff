@@ -13,8 +13,8 @@ pub fn validate_args(args: &Args) -> Result<(), String> {
     Ok(())
 }
 
-fn parse_http_status(s: &str) -> Result<u16, String> {
-    let n: u16 = s.parse().map_err(|_| format!("invalid status: {s}"))?;
+fn parse_http_status(s: &str) -> Result<usize, String> {
+    let n: usize = s.parse().map_err(|_| format!("invalid status: {s}"))?;
     if !(100..=599).contains(&n) {
         return Err(format!("invalid status: {s}"));
     }
@@ -43,7 +43,7 @@ pub struct Args {
         value_parser = parse_http_status,
         help = "Keep records with status >= MIN."
     )]
-    pub status_min: Option<u16>,
+    pub status_min: Option<usize>,
 
     #[arg(
         short = 'e',
@@ -51,7 +51,7 @@ pub struct Args {
         value_parser = parse_http_status,
         help = "Keep records with status <= MAX."
     )]
-    pub status_max: Option<u16>,
+    pub status_max: Option<usize>,
 
     #[arg(
         short,
@@ -82,7 +82,7 @@ pub struct Args {
         help = "Number of most requested routes to show in summary.",
         default_value_t = 5
     )]
-    pub top_routes: u16,
+    pub top_routes: usize,
 
     #[arg(
         short,
