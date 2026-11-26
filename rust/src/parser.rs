@@ -117,7 +117,7 @@ pub fn validate_line(l: &RawParsedLine) -> Result<ParsedLine, String> {
     Ok(ParsedLine {
         remote_address: l.remote_address.clone(),
         timestamp: l.timestamp.clone(),
-        method: method,
+        method,
         path: path.to_string(),
         protocol: l.protocol.clone(),
         status,

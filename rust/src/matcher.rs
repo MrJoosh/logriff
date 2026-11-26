@@ -11,10 +11,8 @@ pub fn match_line(l: &ParsedLine, args: &Args) -> bool {
             return false;
         }
     }
-    if !args.method.is_none() {
-        if l.method != args.method.unwrap() {
-            return false;
-        }
+    if !args.method.is_none() && l.method != args.method.unwrap() {
+        return false;
     }
     if let Some(path_prefix) = args.path_prefix.as_deref() {
         if !l.path.starts_with(path_prefix) {
