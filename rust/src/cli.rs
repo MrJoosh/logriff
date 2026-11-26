@@ -43,7 +43,7 @@ pub struct Args {
         value_parser = parse_http_status,
         help = "Keep records with status >= MIN."
     )]
-    status_min: Option<u16>,
+    pub status_min: Option<u16>,
 
     #[arg(
         short = 'e',
@@ -51,7 +51,7 @@ pub struct Args {
         value_parser = parse_http_status,
         help = "Keep records with status <= MAX."
     )]
-    status_max: Option<u16>,
+    pub status_max: Option<u16>,
 
     #[arg(
         short,
@@ -60,21 +60,21 @@ pub struct Args {
         ignore_case = true,
         help = "Filter by HTTP verb (case-insensitive)."
     )]
-    method: Option<HttpVerb>,
+    pub method: Option<HttpVerb>,
 
     #[arg(
         short,
         long = "path-prefix",
         help = "Keep only requests where path starts with the given prefix."
     )]
-    path_prefix: Option<String>,
+    pub path_prefix: Option<String>,
 
     #[arg(
         long = "min-duration",
         value_parser = parse_min_duration,
         help = "Keep records with response time >= duration."
     )]
-    min_duration: Option<f32>,
+    pub min_duration: Option<f32>,
 
     #[arg(
         short = 'n',
@@ -82,7 +82,7 @@ pub struct Args {
         help = "Number of most requested routes to show in summary.",
         default_value_t = 5
     )]
-    top_routes: u16,
+    pub top_routes: u16,
 
     #[arg(
         short,
@@ -91,16 +91,16 @@ pub struct Args {
         help = "Output format for aggregate results.",
         default_value_t = Format::Text,
     )]
-    format: Format,
+    pub format: Format,
 
     #[arg(
         long,
         help = "Terminate immediately with non-zero exit code on malformed lines."
     )]
-    strict: bool,
+    pub strict: bool,
 
     #[arg(default_value = "-", help = "Log file to process or - for stdin.")]
-    file: String,
+    pub file: String,
 }
 
 #[cfg(test)]

@@ -1,5 +1,9 @@
 use clap::{error::ErrorKind, Parser};
-use logriff::cli::{validate_args, Args};
+use logriff::{
+    cli::{validate_args, Args},
+    stat_generator::generate_stats,
+    types::{ParseError, Stats},
+};
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
@@ -24,7 +28,24 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     };
 
-    println!("Args: {:?}", args);
+    let stats: Stats = match generate_stats(&args.file, &args.strict) {
+        Ok(stats) => stats,
+        Err(err) => match err {
+            ParseError::Io(_) => {
+                eprintln!("{}", err);
+                return ExitCode::from(2);
+            }
+            ParseError::Strict {
+                line: _,
+                message: _,
+            } => {
+                eprintln!("{}", err);
+                return ExitCode::from(3);
+            }
+        },
+    };
+
+    println!("{:?}", stats);
 
     ExitCode::SUCCESS
 }
