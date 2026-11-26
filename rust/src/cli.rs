@@ -103,6 +103,22 @@ pub struct Args {
     pub file: String,
 }
 
+impl Default for Args {
+    fn default() -> Self {
+        Self {
+            status_min: None,
+            status_max: None,
+            method: None,
+            path_prefix: None,
+            min_duration: None,
+            top_routes: 5,
+            format: Format::Text,
+            strict: false,
+            file: "-".into(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod cli_tests {
     use super::{Args, Format, HttpVerb};

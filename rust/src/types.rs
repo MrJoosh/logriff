@@ -44,7 +44,7 @@ impl FromStr for HttpVerb {
 pub struct ParsedLine {
     pub remote_address: String,
     pub timestamp: String,
-    pub method: String,
+    pub method: HttpVerb,
     pub path: String,
     pub protocol: String,
     pub status: u16,

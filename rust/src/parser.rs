@@ -75,9 +75,10 @@ pub fn validate_line(l: &RawParsedLine) -> Result<ParsedLine, String> {
     };
 
     // Validate method
-    if l.method.parse::<HttpVerb>().is_err() {
-        return Err(format!("invalid method: {}", l.method));
-    }
+    let method = l
+        .method
+        .parse::<HttpVerb>()
+        .map_err(|_| format!("invalid method: {}", l.method))?;
 
     // Cut query string from path
     let path_parts = &l.path.split_once('?');
@@ -116,7 +117,7 @@ pub fn validate_line(l: &RawParsedLine) -> Result<ParsedLine, String> {
     Ok(ParsedLine {
         remote_address: l.remote_address.clone(),
         timestamp: l.timestamp.clone(),
-        method: l.method.clone(),
+        method: method,
         path: path.to_string(),
         protocol: l.protocol.clone(),
         status,

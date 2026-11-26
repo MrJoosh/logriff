@@ -1,3 +1,4 @@
+use crate::cli::Args;
 use crate::matcher::match_line;
 use crate::parser::{parse_line, validate_line};
 use crate::types::{ParseError, Stats};
@@ -6,7 +7,7 @@ use std::io::stdin;
 use std::io::BufRead;
 use std::io::BufReader;
 
-pub fn generate_stats(path: &str, strict: &bool) -> Result<Stats, ParseError> {
+pub fn generate_stats(path: &str, args: &Args) -> Result<Stats, ParseError> {
     let mut reader: Box<dyn BufRead> = match path {
         "-" => Box::new(BufReader::new(stdin())),
         file_path => Box::new(BufReader::new(File::open(file_path)?)),
@@ -25,7 +26,7 @@ pub fn generate_stats(path: &str, strict: &bool) -> Result<Stats, ParseError> {
         let parsed_raw = match parse_line(&stats.lines, &line) {
             Ok(parsed_raw) => parsed_raw,
             Err(err) => {
-                if *strict {
+                if args.strict {
                     return Err(ParseError::Strict {
                         line: stats.lines,
                         message: format!("{err}"),
@@ -38,7 +39,7 @@ pub fn generate_stats(path: &str, strict: &bool) -> Result<Stats, ParseError> {
         let parsed = match validate_line(&parsed_raw) {
             Ok(parsed) => parsed,
             Err(err) => {
-                if *strict {
+                if args.strict {
                     return Err(ParseError::Strict {
                         line: stats.lines,
                         message: err.to_string(),
@@ -48,7 +49,7 @@ pub fn generate_stats(path: &str, strict: &bool) -> Result<Stats, ParseError> {
                 continue;
             }
         };
-        if !match_line(&parsed) {
+        if !match_line(&parsed, args) {
             continue;
         }
         stats.matched += 1;

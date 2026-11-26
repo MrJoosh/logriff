@@ -28,7 +28,7 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     };
 
-    let stats: Stats = match generate_stats(&args.file, &args.strict) {
+    let stats: Stats = match generate_stats(&args.file, &args) {
         Ok(stats) => stats,
         Err(err) => match err {
             ParseError::Io(_) => {

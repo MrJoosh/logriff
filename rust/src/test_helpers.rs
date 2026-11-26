@@ -1,4 +1,4 @@
-use crate::types::{ParsedLine, RawParsedLine};
+use crate::types::{HttpVerb, ParsedLine, RawParsedLine};
 
 #[derive(Debug, Clone)]
 pub struct LogLine {
@@ -61,7 +61,7 @@ impl LogLine {
         ParsedLine {
             remote_address: self.remote_address.clone(),
             timestamp: self.timestamp.clone(),
-            method: self.method.clone(),
+            method: self.method.parse::<HttpVerb>().unwrap(),
             path: self.path.clone(),
             protocol: self.protocol.clone(),
             status: self.status.clone().parse().unwrap(),
