@@ -1,8 +1,9 @@
 use clap::{error::ErrorKind, Parser};
 use logriff::{
+    aggregator::aggregate,
     cli::{validate_args, Args},
     stat_generator::generate_stats,
-    types::{ParseError, Stats},
+    types::{Output, ParseError, Stats},
 };
 use std::process::ExitCode;
 
@@ -45,7 +46,11 @@ fn main() -> ExitCode {
         },
     };
 
-    println!("{:?}", stats);
+    let output: Output = match aggregate(&stats) {
+        Ok(output) => output,
+        Err(err) => panic!("{}", err),
+    };
+    println!("{:?}", output);
 
     ExitCode::SUCCESS
 }

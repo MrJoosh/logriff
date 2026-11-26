@@ -1,3 +1,4 @@
+pub mod aggregator;
 pub mod cli;
 pub mod matcher;
 pub mod parser;

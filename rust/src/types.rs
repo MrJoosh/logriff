@@ -1,4 +1,8 @@
-use std::{collections::HashMap, fmt, io, str::FromStr};
+use std::{
+    collections::{BTreeMap, HashMap},
+    fmt, io,
+    str::FromStr,
+};
 
 use clap::ValueEnum;
 
@@ -113,4 +117,39 @@ impl Stats {
     pub fn new() -> Self {
         Default::default()
     }
+}
+
+#[derive(Debug)]
+pub struct Output {
+    pub summary: Summary,
+    pub traffic: Traffic,
+    pub latency: Latency,
+    pub status_codes: BTreeMap<String, usize>,
+    pub top_routes: Vec<RouteCount>,
+}
+
+#[derive(Debug)]
+pub struct Summary {
+    pub total_lines: usize,
+    pub matched_lines: usize,
+    pub error_lines: usize,
+}
+
+#[derive(Debug)]
+pub struct Traffic {
+    pub total_bytes: u64,
+}
+
+#[derive(Debug)]
+pub struct Latency {
+    pub min: f32,
+    pub mean: f32,
+    pub p95: f32,
+    pub max: f32,
+}
+
+#[derive(Debug)]
+pub struct RouteCount {
+    pub path: String,
+    pub count: usize,
 }
