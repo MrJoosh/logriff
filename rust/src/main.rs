@@ -1,8 +1,63 @@
+use clap::{error::ErrorKind, Parser};
+use logriff::{
+    aggregator::aggregate,
+    cli::{validate_args, Args},
+    formatter::format_output,
+    stat_generator::generate_stats,
+    types::{Output, ParseError, Stats},
+};
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
     // TODO: parse flags, stream input, apply filters, aggregate metrics, and emit output.
     // See README.md for the full CLI specification and output formats.
-    eprintln!("logriff: Rust implementation is not yet written");
-    ExitCode::FAILURE
+    let args = match Args::try_parse() {
+        Ok(args) => args,
+        Err(err) => match err.kind() {
+            ErrorKind::DisplayHelp | ErrorKind::DisplayVersion => {
+                let _ = err.print();
+                return ExitCode::SUCCESS;
+            }
+            _ => {
+                eprintln!("{}", err);
+                return ExitCode::FAILURE;
+            }
+        },
+    };
+
+    if let Err(msg) = validate_args(&args) {
+        eprintln!("{msg}");
+        return ExitCode::FAILURE;
+    };
+
+    let stats: Stats = match generate_stats(&args.file, &args) {
+        Ok(stats) => stats,
+        Err(err) => match err {
+            ParseError::Io(_) => {
+                eprintln!("{}", err);
+                return ExitCode::from(2);
+            }
+            ParseError::Strict {
+                line: _,
+                message: _,
+            } => {
+                eprintln!("{}", err);
+                return ExitCode::from(3);
+            }
+        },
+    };
+
+    let output_data: Output = aggregate(&stats, &args.top_routes);
+
+    let output: String = match format_output(output_data, args.format) {
+        Ok(output) => output,
+        Err(err) => {
+            eprintln!("{}", err);
+            return ExitCode::from(99);
+        }
+    };
+
+    println!("{}", output);
+
+    ExitCode::SUCCESS
 }
