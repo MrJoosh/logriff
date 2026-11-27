@@ -47,7 +47,7 @@ fn main() -> ExitCode {
         },
     };
 
-    let output_data: Output = aggregate(&stats);
+    let output_data: Output = aggregate(&stats, &args.top_routes);
 
     let output: String = match format_output(output_data, args.format) {
         Ok(output) => output,

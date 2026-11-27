@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::types::{Latency, Output, RouteCount, Stats, Summary, Traffic};
 
-pub fn aggregate(stats: &Stats) -> Output {
+pub fn aggregate(stats: &Stats, num_routes: &usize) -> Output {
     // Calculate latency values
     let min = stats
         .response_times
@@ -41,6 +41,7 @@ pub fn aggregate(stats: &Stats) -> Output {
             b.count.cmp(&a.count)
         }
     });
+    top_routes.truncate(*num_routes);
 
     Output {
         summary: Summary {
@@ -51,7 +52,7 @@ pub fn aggregate(stats: &Stats) -> Output {
         traffic: Traffic {
             total_bytes: stats.bytes_volume,
         },
-        latency: Latency {
+        latency_ms: Latency {
             min,
             mean,
             p95,
@@ -135,7 +136,7 @@ mod test_aggregate {
             traffic: Traffic {
                 total_bytes: stats.bytes_volume,
             },
-            latency: Latency {
+            latency_ms: Latency {
                 min: 1.2,
                 mean: 1.4,
                 p95: 1.58,
@@ -157,7 +158,7 @@ mod test_aggregate {
                 },
             ],
         };
-        let got = aggregate(&stats);
+        let got = aggregate(&stats, &5);
         assert_eq!(got, want)
     }
 
@@ -181,7 +182,7 @@ mod test_aggregate {
             traffic: Traffic {
                 total_bytes: stats.bytes_volume,
             },
-            latency: Latency {
+            latency_ms: Latency {
                 min: 0.0,
                 mean: 0.0,
                 p95: 0.0,
@@ -190,7 +191,7 @@ mod test_aggregate {
             status_codes: BTreeMap::from([]),
             top_routes: vec![],
         };
-        let got = aggregate(&stats);
+        let got = aggregate(&stats, &5);
         assert_eq!(got, want)
     }
 
@@ -218,7 +219,7 @@ mod test_aggregate {
             traffic: Traffic {
                 total_bytes: stats.bytes_volume,
             },
-            latency: Latency {
+            latency_ms: Latency {
                 min: 1.2,
                 mean: 1.4,
                 p95: 1.58,
@@ -240,7 +241,7 @@ mod test_aggregate {
                 },
             ],
         };
-        let got = aggregate(&stats);
+        let got = aggregate(&stats, &5);
         assert_eq!(got, want)
     }
 
@@ -268,7 +269,7 @@ mod test_aggregate {
             traffic: Traffic {
                 total_bytes: stats.bytes_volume,
             },
-            latency: Latency {
+            latency_ms: Latency {
                 min: 1.2,
                 mean: 1.4,
                 p95: 1.58,
@@ -290,7 +291,47 @@ mod test_aggregate {
                 },
             ],
         };
-        let got = aggregate(&stats);
+        let got = aggregate(&stats, &5);
+        assert_eq!(got, want)
+    }
+
+    #[test]
+    fn routes_limiting() {
+        let stats = Stats {
+            lines: 5,
+            matched: 5,
+            error: 0,
+            bytes_volume: 250,
+            response_times: vec![1.2, 1.6, 1.4, 1.5, 1.3],
+            status_codes: HashMap::from([(200, 3), (401, 1), (500, 1)]),
+            route_distribution: HashMap::from([
+                ("/index.html".into(), 1),
+                ("/assets/foo.css".into(), 1),
+                ("/api/health".into(), 3),
+            ]),
+        };
+        let want = Output {
+            summary: Summary {
+                total_lines: stats.lines,
+                matched_lines: stats.matched,
+                error_lines: stats.error,
+            },
+            traffic: Traffic {
+                total_bytes: stats.bytes_volume,
+            },
+            latency_ms: Latency {
+                min: 1.2,
+                mean: 1.4,
+                p95: 1.58,
+                max: 1.6,
+            },
+            status_codes: BTreeMap::from([("200".into(), 3), ("401".into(), 1), ("500".into(), 1)]),
+            top_routes: vec![RouteCount {
+                path: "/api/health".into(),
+                count: 3,
+            }],
+        };
+        let got = aggregate(&stats, &1);
         assert_eq!(got, want)
     }
 }
