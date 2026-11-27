@@ -2,6 +2,7 @@ use clap::{error::ErrorKind, Parser};
 use logriff::{
     aggregator::aggregate,
     cli::{validate_args, Args},
+    formatter::format_output,
     stat_generator::generate_stats,
     types::{Output, ParseError, Stats},
 };
@@ -46,8 +47,17 @@ fn main() -> ExitCode {
         },
     };
 
-    let output: Output = aggregate(&stats);
-    println!("{:?}", output);
+    let output_data: Output = aggregate(&stats);
+
+    let output: String = match format_output(output_data, args.format) {
+        Ok(output) => output,
+        Err(err) => {
+            eprintln!("{}", err);
+            return ExitCode::from(99);
+        }
+    };
+
+    println!("{}", output);
 
     ExitCode::SUCCESS
 }
