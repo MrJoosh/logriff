@@ -56,10 +56,10 @@ Max             : {:.2} ms
         comma(output.summary.error_lines),
         output.traffic.total_bytes as f64 / (1 << 30) as f64,
         comma(output.traffic.total_bytes),
-        output.latency.min,
-        output.latency.mean,
-        output.latency.p95,
-        output.latency.max,
+        output.latency_ms.min,
+        output.latency_ms.mean,
+        output.latency_ms.p95,
+        output.latency_ms.max,
         format_status_codes_text(&output.status_codes, &output.summary.total_lines),
         output.top_routes.len(),
         format_top_routes_text(&output.top_routes)
@@ -122,7 +122,203 @@ mod test_comma {
 }
 
 #[cfg(test)]
-mod test_json_format {}
+mod test_format_output {
+    use pretty_assertions::assert_eq;
+    use std::collections::BTreeMap;
+
+    use crate::types::{Format, Latency, Output, RouteCount, Summary, Traffic};
+
+    use super::format_output;
+
+    #[test]
+    fn test_json_format_sample() {
+        let o: Output = Output {
+            summary: Summary {
+                total_lines: 5,
+                matched_lines: 5,
+                error_lines: 0,
+            },
+            traffic: Traffic { total_bytes: 9330 },
+            latency_ms: Latency {
+                min: 0.8,
+                mean: 62.56,
+                p95: 185.56,
+                max: 210.6,
+            },
+            status_codes: BTreeMap::from([
+                ("200".into(), 2),
+                ("401".into(), 1),
+                ("304".into(), 1),
+                ("500".into(), 1),
+            ]),
+            top_routes: vec![
+                RouteCount {
+                    path: "/api/v1/auth/login".into(),
+                    count: 1,
+                },
+                RouteCount {
+                    path: "/api/v1/health".into(),
+                    count: 1,
+                },
+                RouteCount {
+                    path: "/api/v1/items/4912".into(),
+                    count: 1,
+                },
+                RouteCount {
+                    path: "/api/v1/sessions/current".into(),
+                    count: 1,
+                },
+                RouteCount {
+                    path: "/assets/main.css".into(),
+                    count: 1,
+                },
+            ],
+        };
+        let r = format_output(o, Format::Json).unwrap();
+        assert_eq!(r, r#"{"summary":{"total_lines":5,"matched_lines":5,"error_lines":0},"traffic":{"total_bytes":9330},"latency_ms":{"min":0.8,"mean":62.56,"p95":185.56,"max":210.6},"status_codes":{"200":2,"304":1,"401":1,"500":1},"top_routes":[{"path":"/api/v1/auth/login","count":1},{"path":"/api/v1/health","count":1},{"path":"/api/v1/items/4912","count":1},{"path":"/api/v1/sessions/current","count":1},{"path":"/assets/main.css","count":1}]}"#.to_string())
+    }
+
+    #[test]
+    fn test_json_format_empty() {
+        let o: Output = Output {
+            summary: Summary {
+                total_lines: 0,
+                matched_lines: 0,
+                error_lines: 0,
+            },
+            traffic: Traffic { total_bytes: 0 },
+            latency_ms: Latency {
+                min: 0.0,
+                mean: 0.0,
+                p95: 0.0,
+                max: 0.0,
+            },
+            status_codes: BTreeMap::from([]),
+            top_routes: vec![],
+        };
+        let r = format_output(o, Format::Json).unwrap();
+        assert_eq!(r, r#"{"summary":{"total_lines":0,"matched_lines":0,"error_lines":0},"traffic":{"total_bytes":0},"latency_ms":{"min":0.0,"mean":0.0,"p95":0.0,"max":0.0},"status_codes":{},"top_routes":[]}"#.to_string())
+    }
+
+    #[test]
+    fn test_text_format_sample() {
+        let o: Output = Output {
+            summary: Summary {
+                total_lines: 5,
+                matched_lines: 5,
+                error_lines: 0,
+            },
+            traffic: Traffic { total_bytes: 9330 },
+            latency_ms: Latency {
+                min: 0.8,
+                mean: 62.56,
+                p95: 185.56,
+                max: 210.6,
+            },
+            status_codes: BTreeMap::from([
+                ("200".into(), 2),
+                ("401".into(), 1),
+                ("304".into(), 1),
+                ("500".into(), 1),
+            ]),
+            top_routes: vec![
+                RouteCount {
+                    path: "/api/v1/auth/login".into(),
+                    count: 1,
+                },
+                RouteCount {
+                    path: "/api/v1/health".into(),
+                    count: 1,
+                },
+                RouteCount {
+                    path: "/api/v1/items/4912".into(),
+                    count: 1,
+                },
+                RouteCount {
+                    path: "/api/v1/sessions/current".into(),
+                    count: 1,
+                },
+                RouteCount {
+                    path: "/assets/main.css".into(),
+                    count: 1,
+                },
+            ],
+        };
+        let r = format_output(o, Format::Text).unwrap();
+        let expected = r#"=== LogRiff Summary ===
+Lines Processed : 5
+Matched Records : 5
+Skipped (Errors): 0
+
+--- Traffic & Bandwidth ---
+Total Volume    : 0.00 GB (9,330 bytes)
+
+--- Latency (ms) ---
+Min             : 0.80 ms
+Mean            : 62.56 ms
+p95             : 185.56 ms
+Max             : 210.60 ms
+
+--- Status Codes ---
+200 :       2 (40.00%)
+304 :       1 (20.00%)
+401 :       1 (20.00%)
+500 :       1 (20.00%)
+
+--- Top Routes (Top 5) ---
+1. /api/v1/auth/login                : 1
+2. /api/v1/health                    : 1
+3. /api/v1/items/4912                : 1
+4. /api/v1/sessions/current          : 1
+5. /assets/main.css                  : 1
+========================"#
+            .to_string();
+        assert_eq!(r, expected)
+    }
+
+    #[test]
+    fn test_text_format_empty() {
+        let o: Output = Output {
+            summary: Summary {
+                total_lines: 0,
+                matched_lines: 0,
+                error_lines: 0,
+            },
+            traffic: Traffic { total_bytes: 0 },
+            latency_ms: Latency {
+                min: 0.0,
+                mean: 0.0,
+                p95: 0.0,
+                max: 0.0,
+            },
+            status_codes: BTreeMap::from([]),
+            top_routes: vec![],
+        };
+        let r = format_output(o, Format::Text).unwrap();
+        let expected = r#"=== LogRiff Summary ===
+Lines Processed : 0
+Matched Records : 0
+Skipped (Errors): 0
+
+--- Traffic & Bandwidth ---
+Total Volume    : 0.00 GB (0 bytes)
+
+--- Latency (ms) ---
+Min             : 0.00 ms
+Mean            : 0.00 ms
+p95             : 0.00 ms
+Max             : 0.00 ms
+
+--- Status Codes ---
+
+
+--- Top Routes (Top 0) ---
+
+========================"#
+            .to_string();
+        assert_eq!(r, expected)
+    }
+}
 
 #[cfg(test)]
 mod test_text_format {}

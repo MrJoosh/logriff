@@ -123,7 +123,7 @@ impl Stats {
 pub struct Output {
     pub summary: Summary,
     pub traffic: Traffic,
-    pub latency: Latency,
+    pub latency_ms: Latency,
     pub status_codes: BTreeMap<String, usize>,
     pub top_routes: Vec<RouteCount>,
 }
